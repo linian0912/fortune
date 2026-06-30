@@ -723,6 +723,19 @@ def full_bazi_analysis(bazi):
     # 9. 忌神规避建议（与喜用神同格式）
     ji_shen_avoid = analyze_ji_shen_avoid(ji_shen, bazi.wu_xing)
 
+    # 10. 起运时间
+    qi_yun_age = compute_qi_yun_age(bazi.birth.year, bazi.birth.month, bazi.birth.day,
+                                     bazi.gender, bazi.year_gan)
+
+    # 11. 大运吉凶评级
+    yong_wx_list = [ys.split("(")[0] if "(" in ys else ys for ys in yong_shen]
+    ji_wx_list = [js.split("(")[0] if "(" in js else js for js in ji_shen]
+    da_yun_rated = rate_da_yun(bazi.da_yun, day_wx, yong_shen, ji_shen)
+
+    # 12. 命盘综合评分
+    overall_score = compute_overall_score(level, yong_shen, ji_shen, bazi.wu_xing,
+                                           bazi.shen_sha, ge_ju)
+
     return {
         "strength": {"level": level, "reasons": reasons},
         "yong_shen": yong_shen,
@@ -735,9 +748,283 @@ def full_bazi_analysis(bazi):
         "shi_shen_detail": shi_shen_detail,
         "ji_shen_detail": ji_shen_detail,
         "ji_shen_avoid": ji_shen_avoid,
+        "qi_yun_age": qi_yun_age,
+        "da_yun_rated": da_yun_rated,
+        "overall_score": overall_score,
     }
 
 
+
+# ============================================================
+# 起运时间计算
+# ============================================================
+
+def compute_qi_yun_age(year, month, day, gender, year_gan):
+    """计算起运年龄（从出生到第一个大运的岁数）。
+    阳男阴女顺排（从出生到下一个节气），阴男阳女逆排（到上一个节气）。
+    三天为一岁，一天为四个月，一个时辰为十天。
+    """
+    from .core import TIAN_GAN_YY, JIE_QI
+    from .lunar import get_jie_qi_date
+    from datetime import date
+
+    gan_yy = TIAN_GAN_YY.get(year_gan, 1)
+    is_male = (gender == "male")
+    forward = (gan_yy == 1 and is_male) or (gan_yy == 0 and not is_male)
+
+    birth = date(year, month, day)
+
+    # 节气列表：立春(2), 惊蛰(4), 清明(6), 立夏(8), 芒种(10), 小暑(12),
+    #           立秋(14), 白露(16), 寒露(18), 立冬(20), 大雪(22), 小寒(0)
+    jie_indices = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 0]
+
+    if forward:
+        # 找出生日之后最近的一个节
+        for ji in jie_indices:
+            jm, jd = get_jie_qi_date(year, ji)
+            if ji == 0:  # 小寒在次年
+                j_year = year + 1
+            else:
+                j_year = year
+            jie_date = date(j_year, jm, jd)
+            if jie_date > birth:
+                break
+        else:
+            # 未找到，取次年立春
+            jm, jd = get_jie_qi_date(year + 1, 2)
+            jie_date = date(year + 1, jm, jd)
+    else:
+        # 找出生日之前最近的一个节
+        jie_indices_rev = list(reversed(jie_indices))
+        for ji in jie_indices_rev:
+            jm, jd = get_jie_qi_date(year, ji)
+            if ji == 0:
+                j_year = year
+            else:
+                j_year = year
+            jie_date = date(j_year, jm, jd)
+            if jie_date < birth:
+                break
+            # 如果是立春且在上年
+            if ji == 2:
+                jm2, jd2 = get_jie_qi_date(year - 1, 2)
+                jie_date = date(year - 1, jm2, jd2)
+                if jie_date < birth:
+                    break
+        else:
+            jm, jd = get_jie_qi_date(year - 1, 0)
+            jie_date = date(year - 1, jm, jd)
+
+    days_diff = abs((birth - jie_date).days)
+    age = round(days_diff / 3, 1)
+    return age
+
+
+# ============================================================
+# 大运吉凶评级
+# ============================================================
+
+def rate_da_yun(da_yun, day_wx, yong_shen_wx_list, ji_shen_wx_list):
+    """对每个大运进行吉凶评级。"""
+    from .core import TIAN_GAN_WX, DI_ZHI_WX
+    WX_SHENG_WO = {"金": "土", "木": "水", "水": "金", "火": "木", "土": "火"}
+    WX_KE_WO = {"金": "火", "木": "金", "水": "土", "火": "水", "土": "木"}
+
+    rated = []
+    for gz, age in da_yun:
+        g, z = gz[0], gz[1]
+        g_wx = TIAN_GAN_WX[g]
+        z_wx = DI_ZHI_WX[z]
+
+        # 提取用神忌神五行（去除括号内容）
+        yong_wx = set()
+        for ys in yong_shen_wx_list:
+            wx = ys.split("(")[0] if "(" in ys else ys
+            yong_wx.add(wx)
+        ji_wx = set()
+        for js in ji_shen_wx_list:
+            wx = js.split("(")[0] if "(" in js else js
+            ji_wx.add(wx)
+
+        # 判断天干吉凶
+        gan_score = 0
+        zhi_score = 0
+
+        if g_wx in yong_wx:
+            gan_score = 2
+            gan_label = "吉"
+        elif g_wx in ji_wx:
+            gan_score = -2
+            gan_label = "凶"
+        elif g_wx == day_wx:
+            gan_score = 0 if day_wx in ji_wx else 1
+            gan_label = "平" if day_wx in ji_wx else "小吉"
+        elif WX_SHENG_WO.get(day_wx) == g_wx:
+            gan_score = 0 if g_wx in ji_wx else 1
+            gan_label = "平" if g_wx in ji_wx else "小吉"
+        else:
+            gan_label = "平"
+            gan_score = 0
+
+        if z_wx in yong_wx:
+            zhi_score = 2
+            zhi_label = "吉"
+        elif z_wx in ji_wx:
+            zhi_score = -2
+            zhi_label = "凶"
+        elif z_wx == day_wx:
+            zhi_score = 0 if day_wx in ji_wx else 1
+            zhi_label = "平" if day_wx in ji_wx else "小吉"
+        else:
+            zhi_label = "平"
+            zhi_score = 0
+
+        total = gan_score + zhi_score
+        if total >= 3:
+            overall = "大吉"
+        elif total >= 1:
+            overall = "吉"
+        elif total >= 0:
+            overall = "平"
+        elif total >= -2:
+            overall = "小凶"
+        else:
+            overall = "凶"
+
+        rated.append({
+            "gz": gz, "age": age,
+            "gan": g, "zhi": z,
+            "gan_wx": g_wx, "zhi_wx": z_wx,
+            "gan_label": gan_label, "zhi_label": zhi_label,
+            "overall": overall,
+            "gan_comment": f"天干{g}({g_wx}){gan_label}", 
+            "zhi_comment": f"地支{z}({z_wx}){zhi_label}",
+        })
+    return rated
+
+
+# ============================================================
+# 流年运势
+# ============================================================
+
+def compute_current_year_ganzhi(current_year=None):
+    """计算当前年份的干支。"""
+    from datetime import date
+    if current_year is None:
+        current_year = date.today().year
+    year_idx = (current_year - 4) % 60
+    from .core import JIA_ZI
+    return JIA_ZI[year_idx]
+
+
+def analyze_liu_nian(day_gan, day_wx, year_gan_zhi, yong_shen_list, ji_shen_list, da_yun_current=None):
+    """分析流年运势。"""
+    from .core import TIAN_GAN_WX, DI_ZHI_WX, TIAN_GAN_YY
+    from .bazi import compute_shi_shen
+
+    year_gan = year_gan_zhi[0]
+    year_zhi = year_gan_zhi[1]
+    year_gan_wx = TIAN_GAN_WX[year_gan]
+    year_zhi_wx = DI_ZHI_WX[year_zhi]
+
+    # 流年十神
+    liu_nian_shi_shen = compute_shi_shen(day_gan, year_gan)
+
+    # 用神忌神
+    yong_wx = set()
+    for ys in yong_shen_list:
+        wx = ys.split("(")[0] if "(" in ys else ys
+        yong_wx.add(wx)
+    ji_wx = set()
+    for js in ji_shen_list:
+        wx = js.split("(")[0] if "(" in js else js
+        ji_wx.add(wx)
+
+    # 评级
+    if year_gan_wx in yong_wx:
+        rating = "吉"
+        desc = f"流年{year_gan_zhi}天干{year_gan_wx}为用神，{liu_nian_shi_shen}运，运势上扬"
+    elif year_gan_wx in ji_wx:
+        rating = "凶"
+        desc = f"流年{year_gan_zhi}天干{year_gan_wx}为忌神，{liu_nian_shi_shen}运，需谨慎行事"
+    else:
+        rating = "平"
+        desc = f"流年{year_gan_zhi}，{liu_nian_shi_shen}运，运势平稳"
+
+    # 生肖关系
+    from .core import SHENG_XIAO, DI_ZHI
+    year_sheng_xiao = SHENG_XIAO[DI_ZHI.index(year_zhi)]
+
+    return {
+        "year_gan_zhi": year_gan_zhi,
+        "year_sheng_xiao": year_sheng_xiao,
+        "shi_shen": liu_nian_shi_shen,
+        "rating": rating,
+        "description": desc,
+        "year_gan": year_gan,
+        "year_zhi": year_zhi,
+        "year_gan_wx": year_gan_wx,
+        "year_zhi_wx": year_zhi_wx,
+    }
+
+
+# ============================================================
+# 命盘综合评分
+# ============================================================
+
+def compute_overall_score(strength_level, yong_shen, ji_shen, wu_xing, shen_sha, ge_ju):
+    """计算命盘综合评分（满分100）。"""
+    score = 50  # 基础分
+
+    # 日主旺衰（0-15分）
+    if strength_level == "中和":
+        score += 15
+    elif strength_level in ("偏旺", "偏弱"):
+        score += 10
+    elif strength_level == "旺":
+        score += 5
+
+    # 用神明确性（0-10分）
+    if len(yong_shen) >= 2:
+        score += 10
+    elif len(yong_shen) == 1:
+        score += 5
+
+    # 五行平衡（0-15分，缺一行-5，过旺一行-3）
+    missing = sum(1 for v in wu_xing.values() if v == 0)
+    excessive = sum(1 for v in wu_xing.values() if v >= 3.5)
+    score -= missing * 5
+    score -= excessive * 3
+    score = max(score, 30)
+
+    # 神煞加分（0-10分）
+    good_shen = {"天乙贵人": 5, "文昌": 3, "将星": 3, "华盖": 2}
+    bad_shen = {"羊刃": -3}
+    for name, zhi_list in shen_sha.items():
+        if name in good_shen:
+            score += good_shen[name]
+        if name in bad_shen:
+            score += bad_shen[name]
+    score = min(score, 100)
+
+    # 格局加分
+    if ge_ju:
+        score += min(len(ge_ju) * 2, 5)
+
+    score = max(min(score, 100), 20)
+
+    if score >= 85:
+        level = "上等"
+    elif score >= 70:
+        level = "中上"
+    elif score >= 55:
+        level = "中等"
+    elif score >= 40:
+        level = "中下"
+    else:
+        level = "下等"
+
+    return {"score": score, "level": level}
 def format_bazi_analysis(analysis):
     """将分析结果格式化为可读文本。"""
     lines = []

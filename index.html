@@ -848,6 +848,59 @@ body::after {
   .bv-col.bv-ganzhi { font-size: 13px; }
   .bv-col { font-size: 10px; padding: 3px 2px; }
 }
+
+/* ===== 命盘总评 ===== */
+.score-card {
+  display: flex; align-items: center; gap: 20px;
+  padding: 16px 20px; margin: 16px 0;
+  background: rgba(255,255,255,0.02); border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.score-ring {
+  position: relative; width: 80px; height: 80px; flex-shrink: 0;
+}
+.score-ring svg { transform: rotate(-90deg); }
+.score-value {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.score-num { font-size: 28px; font-weight: 900; color: #FFC107; line-height: 1; }
+.score-level { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.score-info { flex: 1; }
+.score-info .si-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.score-info .si-detail { font-size: 11px; color: var(--text-dim); line-height: 1.8; }
+
+/* ===== 五行雷达图 ===== */
+.radar-section { margin: 16px 0; }
+.radar-wrap { display: flex; justify-content: center; }
+.radar-wrap svg { max-width: 260px; width: 100%; }
+.radar-label { font-size: 12px; font-weight: 700; }
+.radar-val { font-size: 10px; }
+
+/* ===== 大运时间线 ===== */
+.dayun-timeline { margin: 16px 0; padding: 0 8px; }
+.dt-item { 
+  display: flex; align-items: center; gap: 12px; padding: 8px 0;
+  border-left: 2px solid rgba(255,255,255,0.06); padding-left: 16px;
+  position: relative;
+}
+.dt-item::before {
+  content: ''; position: absolute; left: -5px; top: 14px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-dim);
+}
+.dt-item.dt-ji::before { background: #00FF41; box-shadow: 0 0 6px #00FF41; }
+.dt-item.dt-xiong::before { background: #FF3131; box-shadow: 0 0 6px #FF3131; }
+.dt-item.dt-ping::before { background: #FFC107; }
+.dt-age { font-size: 22px; font-weight: 900; color: #fff; min-width: 50px; }
+.dt-gz { font-size: 16px; font-weight: 700; min-width: 40px; }
+.dt-detail { font-size: 11px; color: var(--text-dim); flex: 1; }
+.dt-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+}
+.dt-badge.dt-ji { background: rgba(0,255,65,0.12); color: #00FF41; }
+.dt-badge.dt-xiong { background: rgba(255,49,49,0.12); color: #FF3131; }
+.dt-badge.dt-ping { background: rgba(255,193,7,0.1); color: #FFC107; }
 </style>
 </head>
 <body>
@@ -1098,6 +1151,10 @@ function renderResults(data, fd) {
     if (data.ziwei_analysis && !data.ziwei_analysis.error) {
       results.appendChild(buildZiweiAnalysisCard(data.ziwei_analysis));
     }
+  }
+  // 命盘总评 + 五行雷达 + 大运时间线（八字模式下）
+  if (currentMode === 'bazi' && data.bazi_analysis && !data.bazi_analysis.error) {
+    results.appendChild(buildBaziEnrichCard(data.bazi_analysis, data.bazi));
   }
   // 综合解读卡片（按当前模式只显示对应体系）
   if (data.combined_analysis && !data.combined_analysis.error) {
@@ -1350,6 +1407,122 @@ function buildZiweiAnalysisCard(analysis) {
 // ============================================
 // 综合解读卡片 - 八字 vs 紫微双体系分开展示
 // ============================================
+
+// ============================================
+// 命盘增强卡片：总评 + 雷达图 + 大运时间线
+// ============================================
+function buildBaziEnrichCard(analysis, bazi) {
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card fade-in';
+  card.style.marginTop = '24px';
+
+  let html = '';
+
+  // === 命盘总评 ===
+  const score = analysis.overall_score || {};
+  if (score.score) {
+    const pct = score.score;
+    const color = pct >= 70 ? '#00FF41' : pct >= 50 ? '#FFC107' : '#FF3131';
+    html += `<div class="section-label">⏣ 命盘总评</div>
+    <div class="score-card">
+      <div class="score-ring">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="${color}" stroke-width="6"
+            stroke-dasharray="${pct * 2.14} 214" stroke-linecap="round"/>
+        </svg>
+        <div class="score-value">
+          <div class="score-num" style="color:${color}">${pct}</div>
+          <div class="score-level">${score.level}</div>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="si-title">${score.level}命局</div>
+        <div class="si-detail">
+          日主${analysis.strength.level} · 格局${(analysis.ge_ju||[]).join('、')||'—'}<br>
+          用神：${(analysis.yong_shen||[]).join('、') || '—'}<br>
+          忌神：${(analysis.ji_shen||[]).join('、') || '—'}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // === 五行雷达图 ===
+  const wx = bazi.wu_xing || {};
+  const maxWx = Math.max(...Object.values(wx), 1);
+  const wxColors = {'金':'#FFC107','木':'#00FF41','水':'#00E5FF','火':'#FF3131','土':'#FFB000'};
+  const wxOrder = ['金','木','水','火','土'];
+  const cx = 130, cy = 130, r = 90;
+  
+  let radarPoints = '';
+  let radarLabels = '';
+  let radarValues = '';
+  wxOrder.forEach((w, i) => {
+    const angle = -Math.PI/2 + (2*Math.PI/5)*i;
+    const val = (wx[w] || 0) / Math.max(maxWx, 1);
+    const px = cx + r * val * Math.cos(angle);
+    const py = cy + r * val * Math.sin(angle);
+    radarPoints += `${i===0?'':''} ${px.toFixed(1)},${py.toFixed(1)}`;
+    
+    const lx = cx + (r+24) * Math.cos(angle);
+    const ly = cy + (r+24) * Math.sin(angle);
+    radarLabels += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" 
+      class="radar-label" fill="${wxColors[w]}">${w}</text>`;
+    radarValues += `<text x="${lx}" y="${ly+18}" text-anchor="middle" dominant-baseline="middle"
+      class="radar-val" fill="var(--text-dim)">${wx[w]}</text>`;
+  });
+
+  html += `<div class="wx-section"><div class="section-title">⏣ 五行雷达</div>
+    <div class="radar-wrap">
+      <svg viewBox="0 0 260 280" width="260" height="280">
+        ${[0.2,0.4,0.6,0.8,1.0].map(s => {
+          let pts = '';
+          wxOrder.forEach((w, i) => {
+            const angle = -Math.PI/2 + (2*Math.PI/5)*i;
+            pts += `${(cx + r*s*Math.cos(angle)).toFixed(1)},${(cy + r*s*Math.sin(angle)).toFixed(1)} `;
+          });
+          return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`;
+        }).join('')}
+        ${wxOrder.map((w, i) => {
+          const angle = -Math.PI/2 + (2*Math.PI/5)*i;
+          return `<line x1="${cx}" y1="${cy}" x2="${(cx+r*Math.cos(angle)).toFixed(1)}" y2="${(cy+r*Math.sin(angle)).toFixed(1)}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`;
+        }).join('')}
+        <polygon points="${radarPoints}" fill="${'#FFC107'}" fill-opacity="0.15" stroke="${'#FFC107'}" stroke-width="2" stroke-opacity="0.6"/>
+        <circle cx="${radarPoints.split(' ')[0].split(',')[0]}" cy="${radarPoints.split(' ')[0].split(',')[1]}" r="4" fill="#FFC107"/>
+        ${wxOrder.map((w, i) => {
+          const angle = -Math.PI/2 + (2*Math.PI/5)*i;
+          const val = (wx[w] || 0) / Math.max(maxWx, 1);
+          const px = cx + r * val * Math.cos(angle);
+          const py = cy + r * val * Math.sin(angle);
+          return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3" fill="${wxColors[w]}"/>`;
+        }).join('')}
+        ${radarLabels}
+        ${radarValues}
+      </svg>
+    </div></div>`;
+
+  // === 大运时间线 ===
+  const dayunRated = analysis.da_yun_rated || [];
+  if (dayunRated.length) {
+    html += `<div class="wx-section"><div class="section-title">⏣ 大运走势</div>
+      <div class="dayun-timeline">`;
+    for (const dy of dayunRated.slice(0, 8)) {
+      const cls = dy.overall.includes('凶') ? 'dt-xiong' : dy.overall.includes('吉') ? 'dt-ji' : 'dt-ping';
+      const badgeCls = dy.overall.includes('凶') ? 'dt-xiong' : dy.overall.includes('吉') ? 'dt-ji' : 'dt-ping';
+      html += `<div class="dt-item ${cls}">
+        <div class="dt-age">${dy.age}岁</div>
+        <div class="dt-gz">${dy.gz}</div>
+        <div class="dt-detail">${dy.gan_comment} · ${dy.zhi_comment}</div>
+        <span class="dt-badge ${badgeCls}">${dy.overall}</span>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  card.innerHTML = html;
+  return card;
+}
+
 function buildCombinedAnalysisCard(combined, mode) {
   const card = document.createElement('div');
   card.className = 'glass-card combined-card fade-in';
