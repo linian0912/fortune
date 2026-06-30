@@ -7,6 +7,7 @@ from .core import (
     TIAN_GAN_WX, TIAN_GAN_YY,
     DI_ZHI_WX, DI_ZHI_CANG_GAN,
     get_gan_index, get_zhi_index, YUE_ZHI, SHENG_XIAO,
+    get_shi_chen_from_hour,
 )
 from .lunar import (
     solar_to_lunar, get_jie_qi_date,
@@ -158,6 +159,30 @@ class Bazi:
         year_gan_yy = TIAN_GAN_YY[self.year_gan]
         self.da_yun = compute_da_yun(month_idx, gender, year_gan_yy)
 
+        # 胎元：月干顺推一位，月支顺推三位
+        tai_gan_idx = (get_gan_index(self.month_gan) + 1) % 10
+        tai_zhi_idx = (get_zhi_index(self.month_zhi) + 3) % 12
+        self.tai_yuan = TIAN_GAN[tai_gan_idx] + DI_ZHI[tai_zhi_idx]
+
+        # 命宫：从月支起子时，逆数到生时
+        hour_zhi = get_shi_chen_from_hour(hour)
+        hour_zhi_idx = DI_ZHI.index(hour_zhi)
+        month_zhi_idx = DI_ZHI.index(self.month_zhi)
+        ming_zhi_idx = (month_zhi_idx - hour_zhi_idx) % 12
+        ming_zhi = DI_ZHI[ming_zhi_idx]
+        # 命宫天干用五虎遁法（年干定月干同样规则）
+        year_gan_idx = get_gan_index(self.year_gan)
+        start_map = {0: 2, 1: 4, 2: 6, 3: 8, 4: 0}  # 甲己→丙寅
+        ming_start = start_map[year_gan_idx % 5]
+        ming_gan_idx = (ming_start + ming_zhi_idx) % 10
+        self.ming_gong = TIAN_GAN[ming_gan_idx] + ming_zhi
+
+        # 身宫：从月支起子时，顺数到生时
+        shen_zhi_idx = (month_zhi_idx + hour_zhi_idx) % 12
+        shen_zhi = DI_ZHI[shen_zhi_idx]
+        shen_gan_idx = (ming_start + shen_zhi_idx) % 10
+        self.shen_gong = TIAN_GAN[shen_gan_idx] + shen_zhi
+
         self.day_wx = TIAN_GAN_WX[self.day_gan]
         self.sheng_xiao = SHENG_XIAO[DI_ZHI.index(self.year_zhi)]
 
@@ -271,7 +296,7 @@ class Bazi:
             f"公历: {self.birth.year}年{self.birth.month}月{self.birth.day}日 {self.birth_hour}时",
             f"农历: {lunar_y}年{leap_str}{lunar_m}月{lunar_d}日",
             f"生肖: {self.sheng_xiao}    性别: {'男' if self.gender == 'male' else '女'}    日主: {self.day_gan}({self.day_wx})",
-            f"空亡: {'、'.join(self.xun_kong)}",
+            f"空亡: {'、'.join(self.xun_kong)}    胎元: {self.tai_yuan}    命宫: {self.ming_gong}    身宫: {self.shen_gong}",
             "",
             _row("", "年柱", "月柱", "日柱", "时柱"),
             _divider(),

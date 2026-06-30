@@ -14,6 +14,8 @@ from fortune.core import DI_ZHI_CANG_GAN, TIAN_GAN_WX, DI_ZHI_WX
 from fortune.bazi_analysis import full_bazi_analysis
 from fortune.ziwei_analysis import full_ziwei_analysis
 from fortune.combined_analysis import full_combined_analysis
+from fortune.personality import analyze_personality
+from fortune.compatibility import analyze_compatibility
 
 def calc_fortune(year, month, day, hour, gender, lunar):
     result = {}
@@ -24,7 +26,7 @@ def calc_fortune(year, month, day, hour, gender, lunar):
             "shi_shen": b.shi_shen, "wu_xing": b.wu_xing, "day_wx": b.day_wx,
             "na_yin": b.na_yin, "sheng_xiao": b.sheng_xiao,
             "lunar_date": f"{b.lunar_date[0]}年{b.lunar_date[1]}月{b.lunar_date[2]}日",
-            "day_master": f"{b.day_gan}({b.day_wx})",
+            "day_master": f"{b.day_gan}({b.day_wx})", "tai_yuan": b.tai_yuan, "ming_gong": b.ming_gong, "shen_gong": b.shen_gong,
             "shen_sha": b.shen_sha,
             "xun_kong": b.xun_kong,
             "chang_sheng": b.chang_sheng,
@@ -89,6 +91,16 @@ def calc_fortune(year, month, day, hour, gender, lunar):
                 result["combined_analysis"] = full_combined_analysis(b, ba, z, za)
     except Exception:
         result["combined_analysis"] = {"error": "combined analysis failed"}
+    # 性格分析
+    try:
+        if "bazi_analysis" in result and "ziwei_analysis" in result:
+            ba = result.get("bazi_analysis", {})
+            za = result.get("ziwei_analysis", {})
+            if "error" not in ba and "error" not in za:
+                b = Bazi(year, month, day, hour, gender, lunar)
+                result["personality"] = analyze_personality(b, ba, za)
+    except Exception:
+        result["personality"] = {"error": "personality analysis failed"}
     return result
 
 
@@ -109,7 +121,29 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(404)
 
     def do_POST(self):
-        if self.path == "/api/fortune":
+        if self.path == "/api/compatibility":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length).decode("utf-8")
+                params = parse_qs(body)
+                y1=int(params.get("y1",[0])[0]); m1=int(params.get("m1",[0])[0]); d1=int(params.get("d1",[0])[0]); h1=int(params.get("h1",[12])[0])
+                y2=int(params.get("y2",[0])[0]); m2=int(params.get("m2",[0])[0]); d2=int(params.get("d2",[0])[0]); h2=int(params.get("h2",[12])[0])
+                g1=params.get("g1",["male"])[0]; g2=params.get("g2",["female"])[0]
+                b1=Bazi(y1,m1,d1,h1,g1,False); b2=Bazi(y2,m2,d2,h2,g2,False)
+                import traceback
+                try:
+                    z1=Ziwei(y1,m1,d1,h1,g1,False); z2=Ziwei(y2,m2,d2,h2,g2,False)
+                except:
+                    z1=None; z2=None
+                result = analyze_compatibility(b1,b2,z1,z2)
+                resp = json.dumps(result, ensure_ascii=False).encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type","application/json; charset=utf-8")
+                self.send_header("Content-Length",len(resp))
+                self.end_headers(); self.wfile.write(resp)
+            except Exception as e:
+                self.send_error(500,str(e))
+        elif self.path == "/api/fortune":
             try:
                 length = int(self.headers.get("Content-Length", 0))
                 body = self.rfile.read(length).decode("utf-8")

@@ -356,7 +356,7 @@ body::after {
 .submit-btn:hover::before { left: 100%; }
 
 /* ===== 结果容器 ===== */
-.results-container {
+.results-container { display: flow-root;
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -901,6 +901,245 @@ body::after {
 .dt-badge.dt-ji { background: rgba(0,255,65,0.12); color: #00FF41; }
 .dt-badge.dt-xiong { background: rgba(255,49,49,0.12); color: #FF3131; }
 .dt-badge.dt-ping { background: rgba(255,193,7,0.1); color: #FFC107; }
+
+/* 刑冲合害 */
+.xch-line { padding: 4px 8px; margin: 4px 0; border-radius: 6px; }
+.xch-he { background: rgba(0,255,65,0.06); border-left: 2px solid #00FF41; }
+.xch-sanhe { background: rgba(0,229,255,0.06); border-left: 2px solid #00E5FF; }
+.xch-chong { background: rgba(255,49,49,0.06); border-left: 2px solid #FF3131; }
+.xch-xing { background: rgba(255,107,157,0.06); border-left: 2px solid #FF6B9D; }
+.xch-hai { background: rgba(255,176,0,0.06); border-left: 2px solid #FFB000; }
+
+/* ===== 纳音卡片 ===== */
+.nayin-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0;
+}
+@media (max-width: 500px) { .nayin-grid { grid-template-columns: 1fr; } }
+.nayin-item {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px; padding: 10px 12px; transition: var(--transition);
+}
+.nayin-item:hover { border-color: rgba(255,193,7,0.2); }
+.nayin-item .ny-pillar { font-size: 9px; color: var(--text-dim); letter-spacing: 2px; }
+.nayin-item .ny-name { font-size: 15px; font-weight: 700; margin: 4px 0; }
+.nayin-item .ny-desc { font-size: 11px; color: var(--text-dim); line-height: 1.6; }
+.nayin-item .ny-advice { font-size: 10px; color: var(--wx-cyan); margin-top: 4px; }
+
+/* ===== 日柱论命 ===== */
+.rizhu-card { border-color: rgba(255,176,0,0.12) !important; }
+.rizhu-reading {
+  font-size: 13px; line-height: 1.9; color: var(--text);
+  padding: 12px; background: rgba(255,176,0,0.04);
+  border-radius: 8px; border: 1px solid rgba(255,176,0,0.1);
+}
+
+/* ===== 神煞详解 ===== */
+.shensha-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0;
+}
+@media (max-width: 500px) { .shensha-grid { grid-template-columns: 1fr; } }
+.ss-item {
+  display: flex; gap: 10px; padding: 10px;
+  background: rgba(255,255,255,0.02); border-radius: 8px;
+  border-left: 3px solid;
+  align-items: flex-start;
+}
+.ss-icon { font-size: 20px; flex-shrink: 0; }
+.ss-info { flex: 1; }
+.ss-name { font-size: 12px; font-weight: 700; }
+.ss-level { font-size: 9px; padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
+.ss-desc { font-size: 10px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+.ss-impact { font-size: 10px; color: var(--text); margin-top: 3px; }
+
+/* ===== 刑冲合害 ===== */
+.xch-card { margin-top: 24px; margin-bottom: 24px; }
+.xch-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+
+/* ===== 性格分析 ===== */
+.personality-card { padding: 28px; }
+.personality-hero {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+}
+.personality-hero .ph-wx-badge {
+  font-size: 28px; font-weight: 900; letter-spacing: 3px;
+  padding: 8px 18px; border-radius: 10px;
+  border: 1.5px solid; white-space: nowrap;
+  text-shadow: 0 0 10px currentColor;
+}
+.personality-hero .ph-desc {
+  flex: 1; font-size: 11px; color: var(--text-dim); line-height: 1.8;
+}
+.personality-hero .ph-level {
+  font-size: 10px; padding: 2px 10px; border-radius: 10px; font-weight: 600; letter-spacing: 1px;
+}
+.personality-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0;
+}
+@media (max-width: 600px) { .personality-grid { grid-template-columns: 1fr; } }
+.ptrait-box {
+  background: rgba(255,255,255,0.015); border-radius: var(--radius-sm); padding: 14px;
+  border: 1px solid rgba(255,255,255,0.04); transition: var(--transition);
+}
+.ptrait-box:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.025); }
+.ptrait-box .pt-label { font-size: 9px; letter-spacing: 3px; color: var(--text-dim); margin-bottom: 10px; text-transform: uppercase; }
+.ptrait-box .pt-items { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.composite-desc {
+  font-size: 12px; line-height: 2; color: var(--text);
+  padding: 14px 16px; background: rgba(255,255,255,0.015);
+  border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.05);
+  margin-top: 10px;
+}
+.composite-desc::before {
+  content: '「'; color: var(--wx-cyan); font-size: 16px; margin-right: 2px;
+}
+
+/* ===== 紫微大限时间线 ===== */
+.zw-daxian-timeline { margin: 14px 0; }
+.zw-dx-item {
+  display: flex; align-items: center; gap: 10px; padding: 7px 0;
+  border-left: 2px solid rgba(0,229,255,0.1); padding-left: 14px;
+  position: relative;
+}
+.zw-dx-item::before {
+  content: ''; position: absolute; left: -5px; top: 13px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--wx-cyan); box-shadow: 0 0 6px rgba(0,229,255,0.5);
+}
+.zw-dx-age { font-size: 13px; font-weight: 900; color: var(--wx-cyan); min-width: 55px; }
+.zw-dx-gong { font-size: 12px; font-weight: 700; min-width: 50px; }
+.zw-dx-comment { font-size: 10px; color: var(--text-dim); flex: 1; }
+
+/* ===== 十二宫全解读 ===== */
+.all-gongs-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0;
+}
+@media (max-width: 700px) { .all-gongs-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 420px) { .all-gongs-grid { grid-template-columns: 1fr; } }
+.gong-mini {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px; padding: 10px; transition: var(--transition);
+}
+.gong-mini:hover { border-color: rgba(0,229,255,0.15); }
+.gong-mini .gm-name {
+  font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 4px;
+}
+.gong-mini .gm-stars { font-size: 10px; margin-top: 4px; }
+.gong-mini .gm-stars .ms { color: var(--wx-red); font-weight: 600; }
+.gong-mini .gm-stars .as { color: var(--text-dim); }
+.gong-mini .gm-bright { font-size: 8px; margin-top: 3px; }
+.gong-mini .gm-desc { font-size: 9px; color: var(--text-dim); margin-top: 4px; line-height: 1.5; }
+.gong-mini .gm-kong { font-size: 9px; color: var(--text-dim); font-style: italic; }
+
+/* ===== 紫微评分 ===== */
+.zw-score-card { margin: 14px 0; }
+
+/* 导出按钮 */
+.export-bar {
+  display: flex; justify-content: center; padding: 20px 0 0;
+}
+.export-btn {
+  padding: 8px 18px; border-radius: 20px; font-size: 11px;
+  background: rgba(255,255,255,0.03); color: var(--text-dim);
+  border: 1px solid rgba(255,255,255,0.08); cursor: pointer;
+  font-family: var(--font-title); letter-spacing: 2px;
+  transition: var(--transition);
+}
+.export-btn:hover { color: var(--wx-cyan); border-color: rgba(0,229,255,0.3); }
+
+
+/* ===== 合婚配对 ===== */
+.compat-card { margin-top: 32px; border-color: rgba(255,107,157,0.2) !important; }
+.compat-card::before {
+  background: linear-gradient(90deg, transparent, #FF6B9D, #FFC107, #FF6B9D, transparent); opacity: 0.5;
+}
+.compat-input-row {
+  display: grid; grid-template-columns: 1fr 30px 1fr; gap: 12px; align-items: end;
+  margin: 14px 0;
+}
+@media (max-width: 600px) { .compat-input-row { grid-template-columns: 1fr; } }
+.compat-person { 
+  background: rgba(255,255,255,0.02); border-radius: 10px; padding: 14px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.compat-person h4 { font-size: 12px; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 8px; }
+.compat-vs { 
+  text-align: center; font-size: 20px; font-weight: 900; 
+  color: #FF6B9D; align-self: center;
+}
+.compat-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.compat-mini-grid input, .compat-mini-grid select {
+  padding: 6px 8px; font-size: 11px;
+}
+.compat-btn {
+  width: 100%; margin-top: 12px;
+}
+.compat-result {
+  margin-top: 18px; text-align: center;
+}
+.compat-score-ring {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 90px; height: 90px; border-radius: 50%;
+  border: 3px solid; margin: 12px 0;
+  position: relative;
+}
+.compat-score-ring .cs-num { font-size: 28px; font-weight: 900; }
+.compat-score-ring .cs-level { font-size: 10px; position: absolute; bottom: 18px; }
+.compat-summary { font-size: 13px; color: var(--text); margin: 10px 0; line-height: 1.8; }
+.compat-detail-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 0;
+  font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.compat-detail-item .cd-aspect { font-weight: 600; min-width: 70px; }
+.compat-detail-item .cd-score { font-weight: 700; min-width: 35px; }
+.compat-detail-item .cd-desc { color: var(--text-dim); flex: 1; }
+
+
+/* ===== 打印样式 ===== */
+@media print {
+  body::before, body::after, #starfield, .export-bar, footer,
+  .input-card, #compat-section, .mode-tabs, .loading-state, .empty-state { display: none !important; }
+  body { background: #121214 !important; color: #e0e0e8 !important; }
+  .main-container { max-width: 100%; padding: 10px; }
+  .glass-card { break-inside: avoid; border: 1px solid rgba(255,255,255,0.1); box-shadow: none; }
+}
+
+
+/* ===== 逐柱详解 ===== */
+.pillar-detail-card { margin-top: 24px; margin-bottom: 8px; }
+.pillar-detail-grid {
+  display: flex; flex-direction: column; gap: 12px; margin: 14px 0;
+}
+.pd-item {
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-sm); padding: 16px;
+  transition: var(--transition); position: relative; overflow: hidden;
+}
+.pd-item::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.pd-item:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.025); }
+.pd-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+}
+.pd-icon { font-size: 18px; }
+.pd-name { font-size: 12px; font-weight: 800; letter-spacing: 2px; }
+.pd-ganzhi {
+  font-size: 22px; font-weight: 900; letter-spacing: 3px;
+}
+.pd-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.pd-tag {
+  font-size: 9px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+  letter-spacing: 1px; border: 1px solid;
+}
+.pd-interps { font-size: 11px; line-height: 1.8; color: var(--text); }
+.pd-interp {
+  padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+.pd-interp:last-child { border-bottom: none; }
+.pd-interp strong { color: var(--wx-cyan); font-weight: 600; }
+
 </style>
 </head>
 <body>
@@ -956,6 +1195,36 @@ body::after {
       </div>
       <button class="submit-btn" onclick="calculate()">开 始 推 算</button>
     </div>
+  </section>
+
+  <!-- 合婚配对 -->
+  <section class="glass-card input-card compat-card" id="compat-section">
+    <div class="section-label">💑 合婚配对</div>
+    <div class="compat-input-row">
+      <div class="compat-person">
+        <h4>👤 本人信息</h4>
+        <div class="compat-mini-grid">
+          <input type="number" id="c1-year" placeholder="年" value="1990" min="1900" max="2100">
+          <input type="number" id="c1-month" placeholder="月" value="5" min="1" max="12">
+          <input type="number" id="c1-day" placeholder="日" value="20" min="1" max="31">
+          <input type="number" id="c1-hour" placeholder="时" value="14" min="0" max="23">
+          <select id="c1-gender"><option value="male">男</option><option value="female">女</option></select>
+        </div>
+      </div>
+      <div class="compat-vs">♥</div>
+      <div class="compat-person">
+        <h4>👤 对方信息</h4>
+        <div class="compat-mini-grid">
+          <input type="number" id="c2-year" placeholder="年" value="1992" min="1900" max="2100">
+          <input type="number" id="c2-month" placeholder="月" value="8" min="1" max="12">
+          <input type="number" id="c2-day" placeholder="日" value="15" min="1" max="31">
+          <input type="number" id="c2-hour" placeholder="时" value="10" min="0" max="23">
+          <select id="c2-gender"><option value="male">男</option><option value="female" selected>女</option></select>
+        </div>
+      </div>
+    </div>
+    <button class="submit-btn compat-btn" onclick="calcCompatibility()" style="background:linear-gradient(135deg,rgba(255,107,157,0.8),rgba(255,49,49,0.8));box-shadow:0 0 20px rgba(255,107,157,0.3)">💘 合 婚 分 析</button>
+    <div id="compat-result"></div>
   </section>
 
   <!-- 结果 -->
@@ -1145,11 +1414,27 @@ function renderResults(data, fd) {
     results.appendChild(buildBaziCard(data.bazi, fd));
     if (data.bazi_analysis && !data.bazi_analysis.error) {
       results.appendChild(buildBaziAnalysisCard(data.bazi_analysis, data.bazi, fd));
+      // 新增：纳音详解
+      results.appendChild(buildNayinCard(data.bazi_analysis, data.bazi));
+      // 新增：日柱论命
+      results.appendChild(buildRiZhuCard(data.bazi_analysis));
+      // 新增：神煞详解
+      results.appendChild(buildShenShaCard(data.bazi_analysis));
+      // 新增：刑冲合害
+      results.appendChild(buildXingChongCard(data.bazi_analysis));
+      // 新增：逐柱详解
+      results.appendChild(buildPillarsDetailCard(data.bazi_analysis));
     }
   } else {
     results.appendChild(buildZiweiCard(data.ziwei));
     if (data.ziwei_analysis && !data.ziwei_analysis.error) {
       results.appendChild(buildZiweiAnalysisCard(data.ziwei_analysis));
+      // 新增：紫微命盘总评
+      results.appendChild(buildZiweiScoreCard(data.ziwei_analysis));
+      // 新增：大限时间线
+      results.appendChild(buildZiweiDaXianCard(data.ziwei_analysis));
+      // 新增：十二宫全解
+      results.appendChild(buildAllGongsCard(data.ziwei_analysis));
     }
   }
   // 命盘总评 + 五行雷达 + 大运时间线（八字模式下）
@@ -1160,6 +1445,12 @@ function renderResults(data, fd) {
   if (data.combined_analysis && !data.combined_analysis.error) {
     results.appendChild(buildCombinedAnalysisCard(data.combined_analysis, currentMode));
   }
+  // 新增：性格分析（两种模式都显示）
+  if (data.personality && !data.personality.error) {
+    results.appendChild(buildPersonalityCard(data.personality));
+  }
+  // 导出按钮
+  results.appendChild(buildExportBar());
   requestAnimationFrame(() => results.classList.add('visible'));
 }
 
@@ -1692,6 +1983,456 @@ function buildZiweiCard(ziwei) {
     </div>`;
   return card;
 }
+
+// ============================================
+// 纳音详解卡片
+// ============================================
+function buildNayinCard(analysis, bazi) {
+  const nd = analysis.na_yin_detail || {};
+  if (!Object.keys(nd).length) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card fade-in';
+  card.style.marginTop = '24px';
+
+  const wxColors = {'金':'#FFC107','木':'#00FF41','水':'#00E5FF','火':'#FF3131','土':'#FFB000'};
+  let html = '<div class="section-label">⏣ 纳音详解</div><div class="nayin-grid">';
+  
+  const order = ['年','月','日','时'];
+  for (const pillar of order) {
+    const d = nd[pillar];
+    if (!d) continue;
+    const color = wxColors[d.wx] || '#fff';
+    html += `<div class="nayin-item">
+      <div class="ny-pillar">${pillar}柱纳音</div>
+      <div class="ny-name" style="color:${color}">${d.name} <span style="font-size:10px">${d.wx}</span></div>
+      <div class="ny-desc">${d.description}</div>
+      <div class="ny-advice">💡 ${d.advice}</div>
+    </div>`;
+  }
+  
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+// ============================================
+// 日柱论命卡片
+// ============================================
+function buildRiZhuCard(analysis) {
+  const reading = analysis.ri_zhu_reading;
+  if (!reading) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card rizhu-card fade-in';
+  card.style.marginTop = '24px';
+  
+  card.innerHTML = `
+    <div class="section-label">⏣ 日柱论命</div>
+    <div class="rizhu-reading">${reading}</div>
+  `;
+  return card;
+}
+
+// ============================================
+// 神煞详解卡片
+// ============================================
+function buildShenShaCard(analysis) {
+  const ssd = analysis.shen_sha_detail || {};
+  if (!Object.keys(ssd).length) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card fade-in';
+  card.style.marginTop = '24px';
+  
+  let html = '<div class="section-label">⏣ 神煞详解</div><div class="shensha-grid">';
+  
+  for (const [name, info] of Object.entries(ssd)) {
+    html += `<div class="ss-item" style="border-left-color:${info.color||'#6a6a7a'}">
+      <div class="ss-icon">${info.symbol||''}</div>
+      <div class="ss-info">
+        <div class="ss-name" style="color:${info.color||'#fff'}">${name}
+          <span class="ss-level" style="background:${info.color||'#6a6a7a'}22;color:${info.color||'#fff'}">${info.level||''}</span>
+        </div>
+        <div class="ss-desc">${info.description||''}</div>
+        <div class="ss-impact">📌 ${info.impact||''} (现于 ${(info.appears_in||[]).join('、')})</div>
+      </div>
+    </div>`;
+  }
+  
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+// ============================================
+// 刑冲合害卡片
+// ============================================
+function buildXingChongCard(analysis) {
+  const xch = analysis.xing_chong_he || {};
+  const hasData = Object.values(xch).some(arr => arr && arr.length);
+  if (!hasData) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card xch-card fade-in';
+  
+  let html = '<div class="section-label">⏣ 刑冲合害</div>';
+  
+  const sections = [
+    { key: 'he', label: '天干五合', cls: 'xch-he', icon: '🤝' },
+    { key: 'san_he', label: '地支三合', cls: 'xch-sanhe', icon: '🔺' },
+    { key: 'chong', label: '地支六冲', cls: 'xch-chong', icon: '⚡' },
+    { key: 'xing', label: '地支相刑', cls: 'xch-xing', icon: '⚠' },
+    { key: 'hai', label: '地支相害', cls: 'xch-hai', icon: '💔' },
+  ];
+  
+  let anyItem = false;
+  for (const sec of sections) {
+    const items = xch[sec.key];
+    if (!items || !items.length) continue;
+    anyItem = true;
+    html += `<div style="margin:10px 0"><div style="font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px">${sec.icon} ${sec.label}</div>
+      <div class="xch-grid">`;
+    for (const item of items) {
+      html += `<span class="xch-line ${sec.cls}" style="font-size:11px">${item}</span>`;
+    }
+    html += '</div></div>';
+  }
+  
+  if (!anyItem) {
+    html += '<div style="font-size:11px;color:var(--text-dim);text-align:center;padding:12px">命局平和，无特殊刑冲合害</div>';
+  }
+  
+  card.innerHTML = html;
+  return card;
+}
+
+// ============================================
+// 紫微命盘总评卡片
+// ============================================
+function buildZiweiScoreCard(analysis) {
+  const score = analysis.overall_score || {};
+  if (!score.score) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card fade-in';
+  card.style.marginTop = '24px';
+  
+  const pct = score.score;
+  const color = pct >= 75 ? '#00FF41' : pct >= 60 ? '#FFC107' : pct >= 45 ? '#FFB000' : '#FF3131';
+  
+  let html = `<div class="section-label">⏣ 紫微命盘总评</div>
+    <div class="score-card">
+      <div class="score-ring">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="${color}" stroke-width="6"
+            stroke-dasharray="${pct * 2.14} 214" stroke-linecap="round"/>
+        </svg>
+        <div class="score-value">
+          <div class="score-num" style="color:${color}">${pct}</div>
+          <div class="score-level">${score.level}</div>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="si-title">${score.level}命盘</div>
+        <div class="si-detail">`;
+  for (const d of (score.details||[])) {
+    html += `${d}<br>`;
+  }
+  html += `</div></div></div>`;
+  
+  card.innerHTML = html;
+  return card;
+}
+
+// ============================================
+// 紫微大限时间线
+// ============================================
+function buildZiweiDaXianCard(analysis) {
+  const dx = analysis.da_xian || [];
+  if (!dx.length) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card fade-in';
+  card.style.marginTop = '24px';
+  
+  let html = '<div class="section-label">⏣ 紫微大限走势</div><div class="zw-daxian-timeline">';
+  
+  for (const d of dx) {
+    html += `<div class="zw-dx-item">
+      <div class="zw-dx-age">${d.age_range}岁</div>
+      <div class="zw-dx-gong">${d.gong_name}</div>
+      <div class="zw-dx-comment">${d.comment} ${d.main_stars&&d.main_stars.length?'('+d.main_stars.slice(0,3).join('、')+')':''}</div>
+    </div>`;
+  }
+  
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+// ============================================
+// 十二宫全解卡片
+// ============================================
+function buildAllGongsCard(analysis) {
+  const gongs = analysis.full_gongs || {};
+  if (!Object.keys(gongs).length) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card bazi-card fade-in';
+  card.style.marginTop = '24px';
+  
+  let html = '<div class="section-label">⏣ 十二宫全解</div><div class="all-gongs-grid">';
+  
+  for (const [name, info] of Object.entries(gongs)) {
+    let starsHtml = '';
+    if (info.main_stars && info.main_stars.length) {
+      starsHtml += info.main_stars.map(s => {
+        const br = (info.star_brightness||{})[s] || {};
+        return `<span class="ms">${s}</span><span style="font-size:8px;color:${br.color||'#6a6a7a'}">${br.name||''}</span>`;
+      }).join(' ');
+    } else {
+      starsHtml = '<span class="gm-kong">— 空宫 —</span>';
+    }
+    
+    if (info.aux_ji && info.aux_ji.length) {
+      starsHtml += '<br><span class="as" style="color:#00FF41">吉：' + info.aux_ji.join('、') + '</span>';
+    }
+    if (info.aux_sha && info.aux_sha.length) {
+      starsHtml += '<br><span class="as" style="color:#FF3131">煞：' + info.aux_sha.join('、') + '</span>';
+    }
+    
+    const isKey = info.keywords && info.keywords.length;
+    
+    html += `<div class="gong-mini">
+      <div class="gm-name">${info.symbol||''} ${name}</div>
+      <div class="gm-stars">${starsHtml}</div>
+      ${info.interpretation ? `<div class="gm-desc">${info.interpretation.substring(0,60)}</div>` : ''}
+    </div>`;
+  }
+  
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
+// ============================================
+// 性格分析卡片
+// ============================================
+function buildPersonalityCard(p) {
+  if (!p || !p.wx_profile) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card personality-card fade-in';
+  card.style.marginTop = '24px';
+  
+  const wx = p.wx_profile;
+  const wxColor = wx.color || '#fff';
+  const strengthColor = {'旺':'#FF3131','偏旺':'#FFB000','中和':'#00E5FF','偏弱':'#00FF41','弱':'#FFC107'}[p.strength_level]||'#6a6a7a';
+  
+  let html = `<div class="section-label">⏣ 性格综合分析</div>
+    <div class="personality-hero">
+      <span class="ph-wx-badge" style="color:${wxColor};border-color:${wxColor}33;background:${wxColor}08">${p.day_wx}型人格</span>
+      <div class="ph-desc">${wx.style} <span class="ph-level" style="color:${strengthColor};background:${strengthColor}11">${p.strength_level}</span></div>
+    </div>
+    <div class="personality-grid">
+      <div class="ptrait-box">
+        <div class="pt-label">核心特质</div>
+        <div class="pt-items">${(wx.traits||[]).map(t=>`<span class="aspect-tag" style="background:${wxColor}10;color:${wxColor}">${t}</span>`).join('')}</div>
+      </div>
+      <div class="ptrait-box">
+        <div class="pt-label">优势</div>
+        <div class="pt-items">${(wx.strengths||[]).map(t=>`<span class="aspect-tag" style="background:rgba(0,255,65,0.06);color:#00FF41">${t}</span>`).join('')}</div>
+      </div>
+      <div class="ptrait-box">
+        <div class="pt-label">成长空间</div>
+        <div class="pt-items">${(wx.weaknesses||[]).map(t=>`<span class="aspect-tag" style="background:rgba(255,49,49,0.06);color:#FF3131">${t}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  
+  if (p.shi_shen_traits && p.shi_shen_traits.length) {
+    html += `<div class="wx-section"><div class="section-title">⏣ 十神影响</div>`;
+    for (const st of p.shi_shen_traits) {
+      html += `<div class="d-item" style="color:var(--text)"><span style="color:${wxColor};font-weight:600">${st.name}</span>：${st.trait}</div>`;
+    }
+    html += `</div>`;
+  }
+  
+  if (p.star_personality && p.star_personality.length) {
+    html += `<div class="wx-section"><div class="section-title">⏣ 紫微星耀</div>`;
+    for (const sp of p.star_personality) {
+      html += `<div class="d-item" style="color:var(--text)"><span class="pt-star">${sp.star}</span>：${sp.desc}</div>`;
+      html += `<div class="a-item">💡 ${sp.advice}</div>`;
+    }
+    html += `</div>`;
+  }
+  
+  html += `<div class="wx-section"><div class="section-title">⏣ 综合画像</div>
+    <div class="composite-desc">${p.composite_description||''}</div></div>`;
+  
+  if (wx.suitable && wx.suitable.length) {
+    html += `<div class="wx-section"><div class="section-title">⏣ 适合行业</div>
+      <div class="aspect-tags">${wx.suitable.map(c=>`<span class="aspect-tag" style="background:${wxColor}08;color:${wxColor}">${c}</span>`).join('')}</div></div>`;
+  }
+  
+  card.innerHTML = html;
+  return card;
+}
+
+// ============================================
+// 导出功能
+// ============================================
+function buildExportBar() {
+  const bar = document.createElement('div');
+  bar.className = 'export-bar fade-in';
+  bar.innerHTML = `
+    <button class="export-btn" onclick="exportAsImage()">📸 导出命盘</button>
+  `;
+  return bar;
+}
+
+function exportAsImage() {
+  // Open print dialog with clean layout
+  const title = document.title;
+  document.title = '命理推算结果';
+  window.print();
+  document.title = title;
+}
+
+
+// ============================================
+// 合婚配对
+// ============================================
+async function calcCompatibility() {
+  const fd = {
+    y1: +document.getElementById('c1-year').value,
+    m1: +document.getElementById('c1-month').value,
+    d1: +document.getElementById('c1-day').value,
+    h1: +document.getElementById('c1-hour').value,
+    g1: document.getElementById('c1-gender').value,
+    y2: +document.getElementById('c2-year').value,
+    m2: +document.getElementById('c2-month').value,
+    d2: +document.getElementById('c2-day').value,
+    h2: +document.getElementById('c2-hour').value,
+    g2: document.getElementById('c2-gender').value,
+  };
+  
+  const resultDiv = document.getElementById('compat-result');
+  resultDiv.innerHTML = '<div class="loading-state"><div class="loading-ring"></div><p style="color:var(--text-dim);font-size:12px">正在分析缘分...</p></div>';
+  
+  try {
+    const resp = await fetch('/api/compatibility', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: `y1=${fd.y1}&m1=${fd.m1}&d1=${fd.d1}&h1=${fd.h1}&g1=${fd.g1}&y2=${fd.y2}&m2=${fd.m2}&d2=${fd.d2}&h2=${fd.h2}&g2=${fd.g2}`
+    });
+    const data = await resp.json();
+    
+    const color = data.score>=80?'#FF3131':data.score>=65?'#FFC107':data.score>=50?'#00E5FF':data.score>=35?'#FFB000':'#6a6a7a';
+    
+    let html = `<div class="compat-result fade-in">
+      <div class="compat-score-ring" style="border-color:${color}; box-shadow:0 0 20px ${color}44">
+        <span class="cs-num" style="color:${color}">${data.score}</span>
+        <span class="cs-level" style="color:${color}">${data.level}</span>
+      </div>
+      <div class="compat-summary">${data.summary}</div>`;
+    
+    if (data.details && data.details.length) {
+      html += `<div style="text-align:left;margin-top:12px">`;
+      for (const d of data.details) {
+        html += `<div class="compat-detail-item">
+          <span class="cd-aspect" style="color:${d.color||'#fff'}">${d.aspect}</span>
+          <span class="cd-score" style="color:${d.color||'#fff'}">${d.score}</span>
+          <span class="cd-desc">${d.desc}</span>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+    resultDiv.innerHTML = html;
+  } catch(e) {
+    resultDiv.innerHTML = `<p style="color:#FF3131;text-align:center">分析失败: ${e.message}</p>`;
+  }
+}
+
+
+// ============================================
+// 四柱逐柱详解卡片
+// ============================================
+function buildPillarsDetailCard(analysis) {
+  const pd = analysis.pillars_detail || {};
+  if (!Object.keys(pd).length) return document.createDocumentFragment();
+  
+  const card = document.createElement('div');
+  card.className = 'glass-card pillar-detail-card fade-in';
+  
+  let html = '<div class="section-label">⏣ 四柱逐柱详解</div><div class="pillar-detail-grid">';
+  
+  const order = ['年','月','日','时'];
+  for (const pname of order) {
+    const p = pd[pname];
+    if (!p) continue;
+    
+    const ganColor = {'金':'#FFC107','木':'#00FF41','水':'#00E5FF','火':'#FF3131','土':'#FFB000'}[p.gan_wx]||'#fff';
+    const zhiColor = {'金':'#FFC107','木':'#00FF41','水':'#00E5FF','火':'#FF3131','土':'#FFB000'}[p.zhi_wx]||'#fff';
+    
+    // Tags
+    let tagsHtml = '';
+    if (p.shi_shen) {
+      const ssColor = p.shi_shen==='日主'?'#FF3131':'#FFC107';
+      tagsHtml += `<span class="pd-tag" style="color:${ssColor};border-color:${ssColor}33;background:${ssColor}0a">${p.shi_shen}</span>`;
+    }
+    if (p.nayin) {
+      tagsHtml += `<span class="pd-tag" style="color:#00E5FF;border-color:#00E5FF33;background:#00E5FF0a">${p.nayin}</span>`;
+    }
+    if (p.chang_sheng) {
+      tagsHtml += `<span class="pd-tag" style="color:#00FF41;border-color:#00FF4133;background:#00FF410a">长生·${p.chang_sheng}</span>`;
+    }
+    if (p.shen_shas && p.shen_shas.length) {
+      for (const ss of p.shen_shas) {
+        tagsHtml += `<span class="pd-tag" style="color:#FFB000;border-color:#FFB00033;background:#FFB0000a">${ss}</span>`;
+      }
+    }
+    
+    // Interpretations
+    let interpsHtml = '';
+    for (const interp of (p.interpretations||[])) {
+      // Make bold markers stand out
+      const formatted = interp.replace(/【(.+?)】/g, '<strong>【$1】</strong>');
+      interpsHtml += `<div class="pd-interp">${formatted}</div>`;
+    }
+    
+    // Sub-info row
+    let subHtml = '';
+    if (p.cang_gan && p.cang_gan.length) {
+      subHtml += `<span style="font-size:10px;color:var(--text-dim)">藏干：${p.cang_gan.join('、')}</span>`;
+    }
+    if (p.di_zhi_shi_shen && p.di_zhi_shi_shen.length) {
+      subHtml += ` <span style="font-size:9px;color:var(--text-dim)">(${p.di_zhi_shi_shen.join('、')})</span>`;
+    }
+    
+    html += `<div class="pd-item">
+      <div class="pd-header">
+        <span class="pd-icon">${p.icon||''}</span>
+        <span class="pd-name" style="color:${p.color||'#fff'}">${pname}柱</span>
+        <span class="pd-ganzhi">
+          <span style="color:${ganColor}">${p.gan}</span><span style="color:${zhiColor}">${p.zhi}</span>
+        </span>
+        <span style="font-size:10px;color:var(--text-dim)">${p.age_range||''}</span>
+        <div class="pd-tags">${tagsHtml}</div>
+      </div>
+      ${subHtml ? `<div style="margin-bottom:6px">${subHtml}</div>` : ''}
+      <div style="font-size:9px;color:var(--text-dim);margin-bottom:8px;letter-spacing:1px">📌 ${p.domain||''}</div>
+      <div class="pd-interps">${interpsHtml}</div>
+    </div>`;
+  }
+  
+  html += '</div>';
+  card.innerHTML = html;
+  return card;
+}
+
 </script>
 </body>
 </html>

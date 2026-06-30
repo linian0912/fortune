@@ -13,6 +13,7 @@ from fortune.core import DI_ZHI_CANG_GAN, TIAN_GAN_WX, DI_ZHI_WX
 from fortune.bazi_analysis import full_bazi_analysis
 from fortune.ziwei_analysis import full_ziwei_analysis
 from fortune.combined_analysis import full_combined_analysis
+from fortune.personality import analyze_personality
 
 HTML_PATH = os.path.join(BASE, "index.html")
 with open(HTML_PATH, "r", encoding="utf-8") as f:
@@ -28,7 +29,7 @@ def calc_fortune(year, month, day, hour, gender, lunar):
             "shi_shen": b.shi_shen, "wu_xing": b.wu_xing, "day_wx": b.day_wx,
             "na_yin": b.na_yin, "sheng_xiao": b.sheng_xiao,
             "lunar_date": f"{b.lunar_date[0]}年{b.lunar_date[1]}月{b.lunar_date[2]}日",
-            "day_master": f"{b.day_gan}({b.day_wx})",
+            "day_master": f"{b.day_gan}({b.day_wx})", "tai_yuan": b.tai_yuan, "ming_gong": b.ming_gong, "shen_gong": b.shen_gong,
             "shen_sha": b.shen_sha,
             "xun_kong": b.xun_kong,
             "chang_sheng": b.chang_sheng,
@@ -93,6 +94,15 @@ def calc_fortune(year, month, day, hour, gender, lunar):
                 result["combined_analysis"] = full_combined_analysis(b, ba, z, za)
     except Exception:
         result["combined_analysis"] = {"error": "combined analysis failed"}
+    try:
+        if "bazi_analysis" in result and "ziwei_analysis" in result:
+            ba = result.get("bazi_analysis", {})
+            za = result.get("ziwei_analysis", {})
+            if "error" not in ba and "error" not in za:
+                b = Bazi(year, month, day, hour, gender, lunar)
+                result["personality"] = analyze_personality(b, ba, za)
+    except Exception:
+        result["personality"] = {"error": "personality analysis failed"}
     return result
 
 
