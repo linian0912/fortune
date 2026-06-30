@@ -83,11 +83,24 @@ def compute_da_yun(month_jia_zi_idx, gender, year_gan_yy):
 
 def get_wu_xing_summary(year_gan, month_gan, day_gan, hour_gan,
                          year_zhi, month_zhi, day_zhi, hour_zhi):
-    wx_count = {"金": 0, "木": 0, "水": 0, "火": 0, "土": 0}
+    """五行分布统计（含藏干加权）。
+    天干权重 1.0，地支本气权重 1.0，地支中气权重 0.5，地支余气权重 0.3。
+    """
+    wx_count = {"金": 0.0, "木": 0.0, "水": 0.0, "火": 0.0, "土": 0.0}
+    # 天干，权重 1.0
     for gan in [year_gan, month_gan, day_gan, hour_gan]:
-        wx_count[TIAN_GAN_WX[gan]] += 1
+        wx_count[TIAN_GAN_WX[gan]] += 1.0
+    # 地支藏干加权：本气 1.0，中气 0.5，余气 0.3
     for zhi in [year_zhi, month_zhi, day_zhi, hour_zhi]:
-        wx_count[DI_ZHI_WX[zhi]] += 1
+        cang = DI_ZHI_CANG_GAN.get(zhi, [])
+        for i, gan in enumerate(cang):
+            wx = TIAN_GAN_WX[gan]
+            if i == 0:
+                wx_count[wx] += 1.0   # 本气
+            elif i == 1:
+                wx_count[wx] += 0.5   # 中气
+            else:
+                wx_count[wx] += 0.3   # 余气
     return wx_count
 
 
@@ -148,20 +161,74 @@ class Bazi:
         self.day_wx = TIAN_GAN_WX[self.day_gan]
         self.sheng_xiao = SHENG_XIAO[DI_ZHI.index(self.year_zhi)]
 
+        # 神煞
+        from .core import (compute_shen_sha, get_xun_kong, get_shier_changsheng,
+                            SHEN_SHA_NAMES, TIAN_YI_GUI_REN, WEN_CHANG, TAO_HUA_MAP,
+                            YI_MA_MAP, HUA_GAI_MAP, YANG_REN, JIANG_XING_MAP)
+        pillars_zhi = [self.year_zhi, self.month_zhi, self.day_zhi, self.hour_zhi]
+        self.shen_sha = compute_shen_sha(self.day_gan, self.year_zhi, self.day_zhi, pillars_zhi)
+        # 空亡（以日柱所在旬为准）
+        day_idx = JIA_ZI.index(self.day_gan_zhi)
+        self.xun_kong = get_xun_kong(day_idx)
+        # 日主十二长生
+        self.chang_sheng = {
+            "年": get_shier_changsheng(self.day_gan, self.year_zhi),
+            "月": get_shier_changsheng(self.day_gan, self.month_zhi),
+            "日": get_shier_changsheng(self.day_gan, self.day_zhi),
+            "时": get_shier_changsheng(self.day_gan, self.hour_zhi),
+        }
+        # 地支十神：每个藏干对日主的十神
+        self.di_zhi_shi_shen = {}
+        for label, zhi in [("年", self.year_zhi), ("月", self.month_zhi),
+                            ("日", self.day_zhi), ("时", self.hour_zhi)]:
+            cang = DI_ZHI_CANG_GAN.get(zhi, [])
+            self.di_zhi_shi_shen[label] = [compute_shi_shen(self.day_gan, g) for g in cang]
+        # 每柱的神煞
+        self.pillar_shen_sha = {"年": [], "月": [], "日": [], "时": []}
+        pillar_label_zhi = [("年", self.year_zhi), ("月", self.month_zhi),
+                            ("日", self.day_zhi), ("时", self.hour_zhi)]
+        # 天乙
+        tian_yi = TIAN_YI_GUI_REN.get(self.day_gan, [])
+        # 文昌
+        wc = WEN_CHANG.get(self.day_gan)
+        # 桃花
+        th = TAO_HUA_MAP.get(self.year_zhi)
+        # 驿马
+        ym = YI_MA_MAP.get(self.year_zhi)
+        # 华盖
+        hg = HUA_GAI_MAP.get(self.year_zhi)
+        # 羊刃
+        yr = YANG_REN.get(self.day_gan)
+        # 将星
+        jx = JIANG_XING_MAP.get(self.year_zhi)
+        for label, zhi in pillar_label_zhi:
+            if zhi in tian_yi:
+                self.pillar_shen_sha[label].append("天乙贵人")
+            if zhi == wc:
+                self.pillar_shen_sha[label].append("文昌")
+            if zhi == th:
+                self.pillar_shen_sha[label].append("桃花")
+            if zhi == ym:
+                self.pillar_shen_sha[label].append("驿马")
+            if zhi == hg:
+                self.pillar_shen_sha[label].append("华盖")
+            if zhi == yr:
+                self.pillar_shen_sha[label].append("羊刃")
+            if zhi == jx:
+                self.pillar_shen_sha[label].append("将星")
+
     def display(self):
         lunar_y, lunar_m, lunar_d, lunar_leap = self.lunar_date
         leap_str = "(闰)" if lunar_leap else ""
         wx_bars = []
+        # 五行分布：显示加权分数（保留1位小数）
+        max_val = max(self.wu_xing.values()) if self.wu_xing else 1
         for wx, count in self.wu_xing.items():
-            bar = "█" * count + "░" * (8 - count)
-            wx_bars.append(f"  {wx}: {bar} ({count})")
-
-        cang_gan_lines = []
-        for label, zhi in [("年", self.year_zhi), ("月", self.month_zhi),
-                            ("日", self.day_zhi), ("时", self.hour_zhi)]:
-            cang_gan_lines.append(
-                f"  {label}支{zhi}藏: {' '.join(DI_ZHI_CANG_GAN[zhi])}"
-            )
+            cnt_int = int(count)
+            cnt_str = f"{count:.1f}" if count != int(count) else str(cnt_int)
+            bar_len = max(1, int(count / max(max_val, 1) * 10))
+            bar = "█" * bar_len + "░" * (10 - bar_len)
+            wx_bars.append(f"  {wx}: {bar} {cnt_str}")
 
         dayun_lines = []
         for i, (gz, age) in enumerate(self.da_yun[:8]):
@@ -170,35 +237,133 @@ class Bazi:
         for i in range(0, len(dayun_lines), 4):
             dayun_rows.append("  ".join(dayun_lines[i:i+4]))
 
+        # 构建每柱的藏干带五行
+        def _cang_str(zhi):
+            cang = DI_ZHI_CANG_GAN.get(zhi, [])
+            return ', '.join([f'{g}({TIAN_GAN_WX[g]})' for g in cang])
+
+        def _zhi_wx_str(zhi):
+            return f'{zhi}({DI_ZHI_WX[zhi]})'
+
+        def _ss_list(label):
+            return ', '.join(self.di_zhi_shi_shen.get(label, []))
+
+        def _sha_list(label):
+            sa = self.pillar_shen_sha.get(label, [])
+            return ', '.join(sa) if sa else '—'
+
+        col_w = 22  # column width
+        sep = "  │  "
+
+        def _cell(content, width=col_w):
+            return f"{content:^{width}}"
+
+        def _row(label, y_data, m_data, d_data, h_data):
+            return f"  {_cell(label, 6)}{sep}{_cell(y_data)}{sep}{_cell(m_data)}{sep}{_cell(d_data)}{sep}{_cell(h_data)}"
+
+        def _divider():
+            return f"  {'─'*6}─┼─{'─'*col_w}─┼─{'─'*col_w}─┼─{'─'*col_w}─┼─{'─'*col_w}"
+
         lines = [
-            "=" * 50,
-            "                    四柱八字命盘",
-            "=" * 50,
+            "=" * 60,
+            "                        四柱八字命盘",
+            "=" * 60,
             f"公历: {self.birth.year}年{self.birth.month}月{self.birth.day}日 {self.birth_hour}时",
             f"农历: {lunar_y}年{leap_str}{lunar_m}月{lunar_d}日",
-            f"生肖: {self.sheng_xiao}    性别: {'男' if self.gender == 'male' else '女'}",
-            f"日主: {self.day_gan}({self.day_wx})",
+            f"生肖: {self.sheng_xiao}    性别: {'男' if self.gender == 'male' else '女'}    日主: {self.day_gan}({self.day_wx})",
+            f"空亡: {'、'.join(self.xun_kong)}",
             "",
-            "  ┌──────┬──────┬──────┬──────┐",
-            "  │  年柱  │  月柱  │  日柱  │  时柱  │",
-            "  ├──────┼──────┼──────┼──────┤",
-            f"  │ {self.year_gan_zhi:^4} │ {self.month_gan_zhi:^4} │ {self.day_gan_zhi:^4} │ {self.hour_gan_zhi:^4} │",
-            "  ├──────┼──────┼──────┼──────┤",
-            f"  │  {self.shi_shen['年']:^4} │  {self.shi_shen['月']:^4} │  {self.shi_shen['日']:^4} │  {self.shi_shen['时']:^4} │",
-            "  ├──────┼──────┼──────┼──────┤",
-            f"  │{self.na_yin['年']:^6}│{self.na_yin['月']:^6}│{self.na_yin['日']:^6}│{self.na_yin['时']:^6}│",
-            "  └──────┴──────┴──────┴──────┘",
+            _row("", "年柱", "月柱", "日柱", "时柱"),
+            _divider(),
+            _row("干支", self.year_gan_zhi, self.month_gan_zhi, self.day_gan_zhi, self.hour_gan_zhi),
+            _row("纳音", self.na_yin['年'], self.na_yin['月'], self.na_yin['日'], self.na_yin['时']),
+            _divider(),
+            _row("十神", self.shi_shen['年'], self.shi_shen['月'], self.shi_shen['日'], self.shi_shen['时']),
+            _row("天干",
+                 f"{self.year_gan}({TIAN_GAN_WX[self.year_gan]})",
+                 f"{self.month_gan}({TIAN_GAN_WX[self.month_gan]})",
+                 f"{self.day_gan}({TIAN_GAN_WX[self.day_gan]})",
+                 f"{self.hour_gan}({TIAN_GAN_WX[self.hour_gan]})"),
+            _row("地支",
+                 _zhi_wx_str(self.year_zhi),
+                 _zhi_wx_str(self.month_zhi),
+                 _zhi_wx_str(self.day_zhi),
+                 _zhi_wx_str(self.hour_zhi)),
+            _row("藏干",
+                 _cang_str(self.year_zhi),
+                 _cang_str(self.month_zhi),
+                 _cang_str(self.day_zhi),
+                 _cang_str(self.hour_zhi)),
+            _row("地支十神",
+                 _ss_list("年"),
+                 _ss_list("月"),
+                 _ss_list("日"),
+                 _ss_list("时")),
+            _row("长生",
+                 self.chang_sheng["年"],
+                 self.chang_sheng["月"],
+                 self.chang_sheng["日"],
+                 self.chang_sheng["时"]),
+            _row("神煞",
+                 _sha_list("年"),
+                 _sha_list("月"),
+                 _sha_list("日"),
+                 _sha_list("时")),
+            "",
             "",
             "【五行分布】",
         ] + wx_bars + [
-            f"  日主{self.day_wx}: {'旺' if self.wu_xing[self.day_wx] >= 3 else '弱'}",
-            "",
-            "【地支藏干】",
-        ] + cang_gan_lines + [
+            f"  日主{self.day_wx}: {self._get_strength_label()}",
             "",
             "【大运排盘】",
         ] + dayun_rows + [
             "",
             "=" * 50,
         ]
+        # 喜用神和忌神
+        from .bazi_analysis import derive_yong_shen, analyze_xi_yong_shen
+        yong_shen, ji_shen, xian_shen = derive_yong_shen(self.day_gan, self.day_wx, 
+            "旺" if self.wu_xing[self.day_wx] >= 3 else "弱")
+        lines.append("")
+        lines.append("【喜用神·忌神】")
+        if yong_shen:
+            lines.append(f"  用神: {', '.join(yong_shen)}")
+        else:
+            lines.append("  用神: 需结合具体格局判断")
+        if ji_shen:
+            lines.append(f"  忌神: {', '.join(ji_shen)}")
+        else:
+            lines.append("  忌神: 需结合具体格局判断")
+        if xian_shen:
+            lines.append(f"  闲神: {', '.join(xian_shen)}")
+        # 五行缺失提示
+        missing = [wx for wx, cnt in self.wu_xing.items() if cnt == 0]
+        over = [wx for wx, cnt in self.wu_xing.items() if cnt >= 3.5]
+        if missing:
+            lines.append(f"\n【五行提示】缺失：{'、'.join(missing)}")
+        if over:
+            lines.append(f"  过旺：{'、'.join(over)}")
+
+        lines.append("")
+        lines.append("=" * 50)
         return "\n".join(lines)
+    def _get_strength_label(self):
+        """使用 analyze_day_master_strength 判断日主旺衰。"""
+        from .bazi_analysis import analyze_day_master_strength
+        level, _ = analyze_day_master_strength(
+            self.day_gan, self.day_zhi, self.month_zhi,
+            self.year_gan, self.month_gan, self.hour_gan,
+            self.year_zhi, self.hour_zhi,
+        )
+        return level
+
+    def analyze(self):
+        from .bazi_analysis import full_bazi_analysis, format_bazi_analysis
+        return full_bazi_analysis(self)
+
+    def display_with_analysis(self):
+        from .bazi_analysis import format_bazi_analysis, full_bazi_analysis
+        base = self.display()
+        analysis = full_bazi_analysis(self)
+        return base + "\n" + format_bazi_analysis(analysis)
+

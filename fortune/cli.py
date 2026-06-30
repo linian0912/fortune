@@ -10,13 +10,38 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 def display_bazi(year, month, day, hour, gender, lunar):
     from fortune.bazi import Bazi
     bazi = Bazi(year, month, day, hour, gender, lunar)
-    print(bazi.display())
+    print(bazi.display_with_analysis())
 
 
 def display_ziwei(year, month, day, hour, gender, lunar):
     from fortune.ziwei import Ziwei
     ziwei = Ziwei(year, month, day, hour, gender, lunar)
+    print(ziwei.display_with_analysis())
+
+
+def display_combined(year, month, day, hour, gender, lunar):
+    from fortune.bazi import Bazi
+    from fortune.ziwei import Ziwei
+    from fortune.bazi_analysis import full_bazi_analysis
+    from fortune.ziwei_analysis import full_ziwei_analysis
+    from fortune.combined_analysis import full_combined_analysis, format_combined_analysis
+
+    bazi = Bazi(year, month, day, hour, gender, lunar)
+    ziwei = Ziwei(year, month, day, hour, gender, lunar)
+
+    print(bazi.display())
     print(ziwei.display_simple())
+
+    ba = full_bazi_analysis(bazi)
+    za = full_ziwei_analysis(ziwei)
+
+    from fortune.bazi_analysis import format_bazi_analysis
+    from fortune.ziwei_analysis import format_ziwei_analysis
+    print(format_bazi_analysis(ba))
+    print(format_ziwei_analysis(za))
+
+    combined = full_combined_analysis(bazi, ba, ziwei, za)
+    print(format_combined_analysis(combined))
 
 
 def parse_args():
@@ -68,16 +93,20 @@ def interactive_mode():
     print("  [1] 四柱八字")
     print("  [2] 紫微斗数")
     print("  [3] 两者都看")
-    choice = input("请选择 (默认3): ").strip() or "3"
+    print("  [4] 综合解读（按婚姻/事业/财运/子女/健康）")
+    choice = input("请选择 (默认4): ").strip() or "4"
 
     gender_str = "female" if gender == "f" else "male"
+
     if choice == "1":
         display_bazi(year, month, day, hour, gender_str, lunar)
     elif choice == "2":
         display_ziwei(year, month, day, hour, gender_str, lunar)
-    else:
+    elif choice == "3":
         display_bazi(year, month, day, hour, gender_str, lunar)
         display_ziwei(year, month, day, hour, gender_str, lunar)
+    else:
+        display_combined(year, month, day, hour, gender_str, lunar)
 
 
 def main():
@@ -92,9 +121,9 @@ def main():
             print(f"  {title}")
             print(f"{'='*60}")
             b = Bazi(y, m, d, h, g)
-            print(b.display())
+            print(b.display_with_analysis())
             z = Ziwei(y, m, d, h, g)
-            print(z.display_simple())
+            print(z.display_with_analysis())
         return
 
     if args.year is None:
@@ -111,6 +140,11 @@ def main():
         display_bazi(args.year, args.month, args.day, args.hour, gender, args.lunar)
     if show_ziwei:
         display_ziwei(args.year, args.month, args.day, args.hour, gender, args.lunar)
+
+    # 默认也显示综合分析
+    if show_bazi and show_ziwei:
+        print("\n\n")
+        display_combined(args.year, args.month, args.day, args.hour, gender, args.lunar)
 
 
 if __name__ == "__main__":

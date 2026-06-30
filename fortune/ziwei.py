@@ -455,3 +455,13 @@ class Ziwei:
             lines.append("")
         lines.append("=" * 60)
         return "\n".join(lines)
+    def analyze(self):
+        from .ziwei_analysis import full_ziwei_analysis, format_ziwei_analysis
+        return full_ziwei_analysis(self)
+
+    def display_with_analysis(self):
+        from .ziwei_analysis import format_ziwei_analysis, full_ziwei_analysis
+        base = self.display_simple()
+        analysis = full_ziwei_analysis(self)
+        return base + "\n" + format_ziwei_analysis(analysis)
+

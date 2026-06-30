@@ -9,7 +9,10 @@ sys.path.insert(0, BASE)
 
 from fortune.bazi import Bazi
 from fortune.ziwei import Ziwei
-from fortune.core import DI_ZHI_CANG_GAN
+from fortune.core import DI_ZHI_CANG_GAN, TIAN_GAN_WX, DI_ZHI_WX
+from fortune.bazi_analysis import full_bazi_analysis
+from fortune.ziwei_analysis import full_ziwei_analysis
+from fortune.combined_analysis import full_combined_analysis
 
 HTML_PATH = os.path.join(BASE, "index.html")
 with open(HTML_PATH, "r", encoding="utf-8") as f:
@@ -26,6 +29,23 @@ def calc_fortune(year, month, day, hour, gender, lunar):
             "na_yin": b.na_yin, "sheng_xiao": b.sheng_xiao,
             "lunar_date": f"{b.lunar_date[0]}年{b.lunar_date[1]}月{b.lunar_date[2]}日",
             "day_master": f"{b.day_gan}({b.day_wx})",
+            "shen_sha": b.shen_sha,
+            "xun_kong": b.xun_kong,
+            "chang_sheng": b.chang_sheng,
+            "di_zhi_shi_shen": b.di_zhi_shi_shen,
+            "pillar_shen_sha": b.pillar_shen_sha,
+            "year_gan_wx": f"{b.year_gan}({TIAN_GAN_WX[b.year_gan]})",
+            "month_gan_wx": f"{b.month_gan}({TIAN_GAN_WX[b.month_gan]})",
+            "day_gan_wx": f"{b.day_gan}({TIAN_GAN_WX[b.day_gan]})",
+            "hour_gan_wx": f"{b.hour_gan}({TIAN_GAN_WX[b.hour_gan]})",
+            "year_zhi_wx": f"{b.year_zhi}({DI_ZHI_WX[b.year_zhi]})",
+            "month_zhi_wx": f"{b.month_zhi}({DI_ZHI_WX[b.month_zhi]})",
+            "day_zhi_wx": f"{b.day_zhi}({DI_ZHI_WX[b.day_zhi]})",
+            "hour_zhi_wx": f"{b.hour_zhi}({DI_ZHI_WX[b.hour_zhi]})",
+            "year_cang": ', '.join([f"{g}({TIAN_GAN_WX[g]})" for g in DI_ZHI_CANG_GAN.get(b.year_zhi, [])]),
+            "month_cang": ', '.join([f"{g}({TIAN_GAN_WX[g]})" for g in DI_ZHI_CANG_GAN.get(b.month_zhi, [])]),
+            "day_cang": ', '.join([f"{g}({TIAN_GAN_WX[g]})" for g in DI_ZHI_CANG_GAN.get(b.day_zhi, [])]),
+            "hour_cang": ', '.join([f"{g}({TIAN_GAN_WX[g]})" for g in DI_ZHI_CANG_GAN.get(b.hour_zhi, [])]),
             "da_yun": [{"gz": gz, "age": age} for gz, age in b.da_yun[:8]],
             "cang_gan_detail": {
                 "年支" + b.year_zhi: DI_ZHI_CANG_GAN.get(b.year_zhi, []),
@@ -34,6 +54,10 @@ def calc_fortune(year, month, day, hour, gender, lunar):
                 "时支" + b.hour_zhi: DI_ZHI_CANG_GAN.get(b.hour_zhi, []),
             },
         }
+        try:
+            result["bazi_analysis"] = full_bazi_analysis(b)
+        except Exception:
+            result["bazi_analysis"] = {"error": "analysis failed"}
     except Exception as e:
         result["bazi"] = {"error": str(e)}
     try:
@@ -52,8 +76,23 @@ def calc_fortune(year, month, day, hour, gender, lunar):
             "wx_ju": f"{z.wx_ju_name}({z.wx_ju}局)", "si_hua": z.si_hua,
             "gongs": gong_data,
         }
+        try:
+            result["ziwei_analysis"] = full_ziwei_analysis(z)
+        except Exception:
+            result["ziwei_analysis"] = {"error": "analysis failed"}
     except Exception as e:
         result["ziwei"] = {"error": str(e)}
+    try:
+        if "bazi" in result and "ziwei" in result and \
+           "error" not in result.get("bazi", {}) and "error" not in result.get("ziwei", {}):
+            b = Bazi(year, month, day, hour, gender, lunar)
+            z = Ziwei(year, month, day, hour, gender, lunar)
+            ba = result.get("bazi_analysis", {})
+            za = result.get("ziwei_analysis", {})
+            if "error" not in ba and "error" not in za:
+                result["combined_analysis"] = full_combined_analysis(b, ba, z, za)
+    except Exception:
+        result["combined_analysis"] = {"error": "combined analysis failed"}
     return result
 
 

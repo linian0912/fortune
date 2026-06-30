@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""核心数据：天干、地支、五行、节气、生肖等。"""
+"""核心数据：天干、地支、五行、节气、生肖、神煞等。"""
 
 TIAN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
 DI_ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
@@ -60,3 +60,131 @@ def get_gan_index(g):
 
 def get_zhi_index(z):
     return DI_ZHI.index(z)
+
+
+# ============================================================
+# 神煞数据
+# ============================================================
+
+# 天乙贵人：日干查
+TIAN_YI_GUI_REN = {
+    '甲': ['丑', '未'], '戊': ['丑', '未'], '庚': ['丑', '未'],
+    '乙': ['子', '申'], '己': ['子', '申'],
+    '丙': ['亥', '酉'], '丁': ['亥', '酉'],
+    '壬': ['卯', '巳'], '癸': ['卯', '巳'],
+    '辛': ['午', '寅'],
+}
+
+# 文昌贵人：日干查
+WEN_CHANG = {
+    '甲': '巳', '乙': '午', '丙': '申', '丁': '酉',
+    '戊': '申', '己': '酉', '庚': '亥', '辛': '子',
+    '壬': '寅', '癸': '卯',
+}
+
+# 桃花（咸池）：年支/日支查
+TAO_HUA_MAP = {
+    '寅': '卯', '午': '卯', '戌': '卯',
+    '申': '酉', '子': '酉', '辰': '酉',
+    '巳': '午', '酉': '午', '丑': '午',
+    '亥': '子', '卯': '子', '未': '子',
+}
+
+# 驿马：年支/日支查
+YI_MA_MAP = {
+    '寅': '申', '午': '申', '戌': '申',
+    '申': '寅', '子': '寅', '辰': '寅',
+    '巳': '亥', '酉': '亥', '丑': '亥',
+    '亥': '巳', '卯': '巳', '未': '巳',
+}
+
+# 华盖：年支/日支查
+HUA_GAI_MAP = {
+    '寅': '戌', '午': '戌', '戌': '戌',
+    '申': '辰', '子': '辰', '辰': '辰',
+    '巳': '丑', '酉': '丑', '丑': '丑',
+    '亥': '未', '卯': '未', '未': '未',
+}
+
+# 羊刃：日干查
+YANG_REN = {
+    '甲': '卯', '乙': '寅', '丙': '午', '丁': '巳',
+    '戊': '午', '己': '巳', '庚': '酉', '辛': '申',
+    '壬': '子', '癸': '亥',
+}
+
+# 将星：年支查
+JIANG_XING_MAP = {
+    '寅': '午', '午': '午', '戌': '午',
+    '申': '子', '子': '子', '辰': '子',
+    '巳': '酉', '酉': '酉', '丑': '酉',
+    '亥': '卯', '卯': '卯', '未': '卯',
+}
+
+# 空亡：每旬缺二支
+XUN_KONG = {
+    0: ['戌', '亥'],
+    10: ['申', '酉'],
+    20: ['午', '未'],
+    30: ['辰', '巳'],
+    40: ['寅', '卯'],
+    50: ['子', '丑'],
+}
+
+SHEN_SHA_NAMES = {
+    '天乙贵人': '✨', '文昌': '📖', '桃花': '🌸',
+    '驿马': '🐎', '华盖': '🏛️', '羊刃': '⚔️', '将星': '⭐',
+}
+
+
+def get_xun_kong(jia_zi_index):
+    """根据六十甲子序号获取空亡地支。"""
+    xun_start = (jia_zi_index // 10) * 10
+    return XUN_KONG.get(xun_start, ['?', '?'])
+
+
+def compute_shen_sha(day_gan, year_zhi, day_zhi, pillars_zhi):
+    """计算命局神煞。"""
+    result = {}
+    tian_yi = TIAN_YI_GUI_REN.get(day_gan, [])
+    found_yi = [z for z in pillars_zhi if z in tian_yi]
+    if found_yi:
+        result['天乙贵人'] = found_yi
+    wc = WEN_CHANG.get(day_gan)
+    if wc and wc in pillars_zhi:
+        result['文昌'] = [wc]
+    th = TAO_HUA_MAP.get(year_zhi)
+    if th and th in pillars_zhi:
+        result['桃花'] = [th]
+    ym = YI_MA_MAP.get(year_zhi)
+    if ym and ym in pillars_zhi:
+        result['驿马'] = [ym]
+    hg = HUA_GAI_MAP.get(year_zhi)
+    if hg and hg in pillars_zhi:
+        result['华盖'] = [hg]
+    yr = YANG_REN.get(day_gan)
+    if yr and yr in pillars_zhi:
+        result['羊刃'] = [yr]
+    jx = JIANG_XING_MAP.get(year_zhi)
+    if jx and jx in pillars_zhi:
+        result['将星'] = [jx]
+    return result
+
+
+def get_shier_changsheng(day_gan, zhi):
+    """日主在指定地支的十二长生状态。"""
+    yin_zhi = ['亥','子','丑','寅','卯','辰','巳','午','未','申','酉','戌']
+    stages = ['长生','沐浴','冠带','临官','帝旺','衰','病','死','墓','绝','胎','养']
+    yang_start = {'甲':'亥','丙':'寅','戊':'寅','庚':'巳','壬':'申'}
+    yin_start = {'乙':'午','丁':'酉','己':'酉','辛':'子','癸':'卯'}
+    gan_yy = TIAN_GAN_YY.get(day_gan, 1)
+    if gan_yy == 1:
+        start_zhi = yang_start.get(day_gan, '亥')
+        start_idx = yin_zhi.index(start_zhi)
+        zhi_idx = yin_zhi.index(zhi)
+        return stages[(zhi_idx - start_idx) % 12]
+    else:
+        start_zhi = yin_start.get(day_gan, '午')
+        start_idx = yin_zhi.index(start_zhi)
+        zhi_idx = yin_zhi.index(zhi)
+        return stages[(start_idx - zhi_idx) % 12]
