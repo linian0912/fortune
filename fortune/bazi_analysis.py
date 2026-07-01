@@ -748,13 +748,30 @@ def full_bazi_analysis(bazi):
     # 17. 四柱逐柱详解
     pillars_detail = {}
 
-    # We need a temp dict with needed fields to pass
     _temp_analysis = {
         "strength": {"level": level, "reasons": reasons},
         "yong_shen": yong_shen,
         "ji_shen": ji_shen,
     }
     pillars_detail = analyze_pillars_detail(bazi, _temp_analysis)
+
+    # 18. 流年运势（当年+未来5年）
+    from datetime import date
+    current_year = date.today().year
+    liu_nian_list = []
+    for offset in range(6):
+        yn_year = current_year + offset
+        yn_gz = compute_current_year_ganzhi(yn_year)
+        yn = analyze_liu_nian(bazi.day_gan, day_wx, yn_gz, yong_shen, ji_shen)
+        yn["year_num"] = yn_year
+        yn["is_current"] = (offset == 0)
+        liu_nian_list.append(yn)
+
+    # 19. 胎元/命宫/身宫解读
+    tai_ming_shen = analyze_tai_ming_shen(bazi)
+
+    # 20. 空亡详解
+    xun_kong_detail = analyze_xun_kong_detail(bazi)
 
     return {
         "strength": {"level": level, "reasons": reasons},
@@ -778,6 +795,9 @@ def full_bazi_analysis(bazi):
         "ri_zhu_reading": ri_zhu_reading,
         "shen_sha_detail": shen_sha_detail,
         "pillars_detail": pillars_detail,
+        "liu_nian": liu_nian_list,
+        "tai_ming_shen": tai_ming_shen,
+        "xun_kong_detail": xun_kong_detail,
     }
 
 
@@ -1268,41 +1288,52 @@ def analyze_ri_zhu(day_gan_zhi):
 # 16. 神煞详解
 # ============================================================
 SHEN_SHA_DETAIL = {
-    "天乙贵人": {
-        "symbol": "✨", "level": "大吉", "color": "#FFC107",
-        "desc": "天乙贵人是命中最吉之神，遇之主智慧聪明，出入近贵，逢凶化吉。",
-        "impact": "贵人相助，事业顺遂。在关键时刻总有人出手相助。",
-    },
-    "文昌": {
-        "symbol": "📖", "level": "吉", "color": "#00E5FF",
-        "desc": "文昌星主文运、科甲、学业。命带文昌者聪明好学，有文采。",
-        "impact": "学业运佳，适合从事学术、写作、教育等文职工作。",
-    },
-    "桃花": {
-        "symbol": "🌸", "level": "中性", "color": "#FF6B9D",
-        "desc": "桃花星主人缘、异性缘、魅力。命带桃花者人缘好，有吸引力。",
-        "impact": "异性缘佳，社交能力强。但需注意节制，避免感情纠葛。",
-    },
-    "驿马": {
-        "symbol": "🐎", "level": "中性", "color": "#FFB000",
-        "desc": "驿马星主走动、变动、奔波。命带驿马者好动不喜静。",
-        "impact": "适合外勤、出差、交通物流行业。但需注意奔波劳累。",
-    },
-    "华盖": {
-        "symbol": "🏛️", "level": "中性", "color": "#00FF41",
-        "desc": "华盖星主孤独、艺术、宗教缘分。命带华盖者有独特气质。",
-        "impact": "有艺术天赋和宗教缘分。性格可能偏内向，但才华内蕴。",
-    },
-    "羊刃": {
-        "symbol": "⚔️", "level": "凶", "color": "#FF3131",
-        "desc": "羊刃星主刚强、固执、竞争。命带羊刃者性格刚烈。",
-        "impact": "做事果断有魄力，但容易冲动。适合军警、外科医生等需要胆量的职业。",
-    },
-    "将星": {
-        "symbol": "⭐", "level": "吉", "color": "#FFC107",
-        "desc": "将星主领导才能、统御能力。命带将星者有大将之风。",
-        "impact": "有领导才能和统御力，适合管理和指挥岗位。",
-    },
+    "天乙贵人": {"symbol":"✨","level":"大吉","color":"#FFC107","desc":"天乙贵人是命中最吉之神，遇之主智慧聪明，出入近贵，逢凶化吉。","impact":"贵人相助，事业顺遂。关键时刻总有贵人出手相助。"},
+    "天德贵人": {"symbol":"🌟","level":"大吉","color":"#FFC107","desc":"天德贵人乃上天之德，是化解灾厄的首选吉星。命带天德者心地善良，灾难不侵。","impact":"逢凶化吉，遇难呈祥。一生少有大灾大难，是上等的护身吉星。"},
+    "月德贵人": {"symbol":"🌙","level":"大吉","color":"#00E5FF","desc":"月德贵人是太阴之德，主福气、人缘、庇护。命带月德者人缘好，得女性贵人相助。","impact":"人际关系和谐，易得女性长辈和上司的赏识和庇护。"},
+    "文昌": {"symbol":"📖","level":"吉","color":"#00E5FF","desc":"文昌星主文运、科甲、学业。命带文昌者聪明好学，有文采。","impact":"学业运佳，适合学术、写作、教育等文职工作。"},
+    "学堂": {"symbol":"🎓","level":"吉","color":"#00FF41","desc":"学堂星主学业、考运、知识获取。命带学堂者有学习天赋，考试运佳。","impact":"学习能力强，适合深造和知识密集型行业。"},
+    "太极贵人": {"symbol":"☯️","level":"大吉","color":"#FFC107","desc":"太极贵人主智慧、哲学、玄学天赋。命带太极者聪明绝顶，有独特思维。","impact":"对哲学、命理、科学有天然兴趣和天赋，适合研究和创新。"},
+    "福星贵人": {"symbol":"🍀","level":"大吉","color":"#00FF41","desc":"福星贵人主福气、安逸、享受。命带福星者一生衣食无忧，生活安稳。","impact":"天生有福气，生活顺遂少波折，适合稳定安逸的生活方式。"},
+    "禄神": {"symbol":"💰","level":"大吉","color":"#FFC107","desc":"禄神即临官之位，主食禄、俸禄、职位。命带禄神者事业有根基，有稳定的收入来源。","impact":"事业稳定，有官运或稳定的职业发展。适合体制内工作。"},
+    "金舆": {"symbol":"🚗","level":"吉","color":"#FFB000","desc":"金舆星主车马、出行、交通。命带金舆者出行便利，有车马之福。","impact":"出行运佳，适合交通物流行业，也代表有车代步的生活品质。"},
+    "金匮": {"symbol":"🏦","level":"吉","color":"#FFC107","desc":"金匮星为财库之星，主积蓄、储蓄、不动产。命带金匮者善于存钱理财。","impact":"理财能力强，有积蓄习惯，适合长期投资和不动产配置。"},
+    "红鸾": {"symbol":"💕","level":"吉","color":"#FF6B9D","desc":"红鸾星主婚缘、喜事。命带红鸾者婚姻运好，适婚年龄易遇正缘。","impact":"婚姻缘分佳，适合在红鸾出现之年完婚，婚姻生活美满。"},
+    "天喜": {"symbol":"🎉","level":"吉","color":"#FF6B9D","desc":"天喜星主喜庆、添丁、好事临门。命带天喜者人生多有喜庆之事。","impact":"家中喜事多，添丁、升职、乔迁等好事不断。"},
+    "桃花": {"symbol":"🌸","level":"中性","color":"#FF6B9D","desc":"桃花星主人缘、异性缘、魅力。命带桃花者人缘好，有吸引力。","impact":"异性缘佳，社交能力强。但需注意节制，避免感情纠葛。"},
+    "驿马": {"symbol":"🐎","level":"中性","color":"#FFB000","desc":"驿马星主走动、变动、奔波。命带驿马者好动不喜静。","impact":"适合外勤、出差、交通物流行业。但需注意奔波劳累。"},
+    "华盖": {"symbol":"🏛️","level":"中性","color":"#00FF41","desc":"华盖星主孤独、艺术、宗教缘分。命带华盖者有独特气质。","impact":"有艺术天赋和宗教缘分。性格可能偏内向，但才华内蕴。"},
+    "将星": {"symbol":"⭐","level":"吉","color":"#FFC107","desc":"将星主领导才能、统御能力。命带将星者有大将之风。","impact":"有领导才能和统御力，适合管理和指挥岗位。"},
+    "羊刃": {"symbol":"⚔️","level":"凶","color":"#FF3131","desc":"羊刃星主刚强、固执、竞争。命带羊刃者性格刚烈。","impact":"做事果断有魄力，但容易冲动。适合军警、外科医生等需要胆量的职业。"},
+    "孤辰": {"symbol":"🏝️","level":"凶","color":"#FFB000","desc":"孤辰星主孤独、独立。男命带孤辰者性格独立，不喜依赖他人。","impact":"性格独立但可能较为孤僻，适合独立工作。需注意人际关系。"},
+    "寡宿": {"symbol":"🏚️","level":"凶","color":"#FFB000","desc":"寡宿星主孤寡。女命带寡宿者较为独立，晚婚或配偶聚少离多。","impact":"女性需主动社交，扩大交际圈，晚婚更有利。"},
+    "劫煞": {"symbol":"⚡","level":"凶","color":"#FF3131","desc":"劫煞星主意外、劫夺、破财。命带劫煞者需防盗防骗，谨慎交友。","impact":"需注意财务安全，避免高风险投资，谨慎选择合作伙伴。"},
+    "灾煞": {"symbol":"💥","level":"凶","color":"#FF3131","desc":"灾煞星主突发灾祸、意外。命带灾煞者需注意身体健康和出行安全。","impact":"需特别注意交通安全和意外伤害，买保险有备无患。"},
+    "天厨贵人": {"symbol":"🍽️","level":"吉","color":"#FFC107","desc":"天厨贵人是食神之禄位，主食禄丰厚、口福。命带天厨者一生衣食无忧，有美食之福。","impact":"生活品质高，有美食和享乐之福。适合餐饮、食品相关行业。"},
+    "国印贵人": {"symbol":"📜","level":"吉","color":"#FFC107","desc":"国印贵人主掌印之权，与官方、文书、印章有关。命带国印者适合公职和法律行业。","impact":"有掌权之象，适合公务员、律师、法官等与印章文书相关的职业。"},
+    "三奇贵人": {"symbol":"👑","level":"大吉","color":"#FF3131","desc":"三奇贵人是天下少有的吉格，分为天上三奇（甲戊庚）、人中三奇（壬癸辛）、地下三奇（乙丙丁）。命带三奇者才华出众，心胸开阔。","impact":"命中极品，一生有特殊机遇和成就，是难得的上等格局。"},
+    "魁罡": {"symbol":"🔱","level":"中性","color":"#FF3131","desc":"魁罡日出生者（庚辰、庚戌、壬辰、戊戌），性格刚强果断，有领导才能，但过于刚直易得罪人。","impact":"做事果断有魄力，适合军警、管理岗位。但需柔和待人。"},
+    "十恶大败": {"symbol":"💸","level":"凶","color":"#FF3131","desc":"十恶大败日是仓库金银消损之日。日柱逢此者需注意理财，避免大进大出的消费习惯。","impact":"钱财易散，需培养储蓄习惯，做长期财务规划。"},
+    "亡神": {"symbol":"💀","level":"凶","color":"#FF3131","desc":"亡神为三合局临官之位，主心神不宁、意外。命带亡神者心思敏感，需注意精神健康。","impact":"需注意心理健康，避免过度焦虑。适合需要敏锐直觉的工作。"},
+    "元辰": {"symbol":"🌀","level":"凶","color":"#FFB000","desc":"元辰又名大耗，主破财、变动。命带元辰者运势起伏较大，需未雨绸缪。","impact":"财运起伏大，应有应急储备，避免冲动投资。"},
+    "天罗地网": {"symbol":"🕸️","level":"凶","color":"#FF3131","desc":"戌亥为天罗，辰巳为地网。命入天罗地网者运势受阻，行动受限，需等待时机。","impact":"运势有阻塞之时，宜耐心蛰伏等待时机，不宜急进。"},
+    "丧门": {"symbol":"⚰️","level":"凶","color":"#6a6a7a","desc":"丧门星主孝服、悲伤。流年或命带丧门需注意家人健康。","impact":"需多关心家人健康，遇丧门之年不宜参加白事。"},
+    "吊客": {"symbol":"🕯️","level":"凶","color":"#6a6a7a","desc":"吊客星主探望病人、参加葬礼。流年遇吊客者多遇白事场合。","impact":"遇吊客之年注意身体健康，少去医院和丧葬场合。"},
+    "白虎": {"symbol":"🐅","level":"凶","color":"#FF3131","desc":"白虎星主血光、打斗、意外。命带白虎者需注意人身安全和口舌是非。","impact":"避免与人争执冲突，注意人身安全，不宜冒险。"},
+    "血刃": {"symbol":"🩸","level":"凶","color":"#FF3131","desc":"血刃星主血光之灾、手术。命带血刃者需注意身体受伤和手术风险。","impact":"注意身体安全，避免高危活动。手术前需做好充分准备。"},
+    "飞刃": {"symbol":"🗡️","level":"凶","color":"#FF3131","desc":"飞刃是羊刃对冲之位（又名唐符），主突然的冲突、意外攻击。命带飞刃者需防小人暗算和突发纠纷。","impact":"防范突然的人际冲突和意外伤害。在竞争环境中需多留个心眼。"},
+    "勾绞": {"symbol":"🪢","level":"凶","color":"#FFB000","desc":"勾绞星主是非纠缠、官司口舌。命带勾绞者需谨慎言行，避免卷入纠纷。","impact":"谨言慎行，签合同需仔细，避免担保和连带责任。"},
+    "天官贵人": {"symbol":"🎖️","level":"大吉","color":"#FFC107","desc":"天官贵人是天乙贵人的辅佐之星，主官运亨通、职位晋升、仕途顺利。命带天官者天生有官缘。","impact":"仕途顺利，易得上级赏识和提拔。适合体制内和大型企业管理岗位。"},
+    "日德": {"symbol":"🌿","level":"大吉","color":"#00FF41","desc":"日德日出生者（甲寅、丙辰、戊辰、庚辰、壬戌），天生品德高尚，心地善良，福泽深厚。","impact":"为人正直厚道，有贵人缘。一生福报深厚，子孙也多有出息。"},
+    "日贵": {"symbol":"💎","level":"大吉","color":"#FFC107","desc":"日贵日出生者（丁酉、丁亥、癸巳、癸卯），气质高贵，举止优雅，天生有贵人运。","impact":"气质出众，社交场合受人瞩目。易得上层人士赏识，适合高端服务业和外交领域。"},
+    "金神": {"symbol":"🔶","level":"中性","color":"#FFB000","desc":"金神入命者（时柱乙丑、己巳、癸酉），性格刚毅果断，有破旧立新的魄力。金神需火炼方成器。","impact":"有变革精神和执行力。若八字有火则能成大器；若无火则刚强易折，需培养柔韧。"},
+    "八专": {"symbol":"🔗","level":"中性","color":"#FF6B9D","desc":"八专日出生者（甲寅、乙卯、丁未、己未、庚申、辛酉、癸丑、戊戌），体质特殊，感情专注但易偏执。","impact":"感情专一投入，婚姻有深厚基础。但需注意给对方空间，避免过度掌控导致对方压力。"},
+    "九丑": {"symbol":"🕳️","level":"凶","color":"#FF3131","desc":"九丑日出生者（戊子、戊午、壬子、壬午、丁酉、丁卯、己酉、己卯、辛酉、辛卯），容貌俊美但情路多舛。","impact":"外表出众引人注目，但感情易有波折和诱惑。需修身养性，培养内在定力以应对情感考验。"},
+    "阴错阳差": {"symbol":"⚖️","level":"凶","color":"#FF3131","desc":"阴错阳差日出生者（丙子、丙午、丁丑、丁未、戊寅、戊申、辛卯、辛酉、壬辰、壬戌、癸巳、癸亥），阴阳失调，婚姻易有不顺。","impact":"感情婚姻易有阴差阳错的波折，好事多磨。需耐心经营婚姻，晚婚更为有利。"},
+    "六厄": {"symbol":"⛓️","level":"凶","color":"#FFB000","desc":"六厄星主困厄、阻滞、运势低迷。命带六厄者在某些时期会感到诸事不顺、举步维艰。","impact":"遇到六厄年份宜守不宜攻，减少重大决策。平时多行善积德可化解厄运。"},
+    "披麻": {"symbol":"🧶","level":"凶","color":"#6a6a7a","desc":"披麻星主孝服、白事、长辈健康。流年或命带披麻需格外关注家中老人身体状况。","impact":"多关心长辈健康，定期体检。遇披麻之年不宜举办大型喜庆活动。"},
+    "四废": {"symbol":"🪫","level":"凶","color":"#6a6a7a","desc":"四废日主季节与日柱五行相废，主运势低迷、有力使不出。命带四废者在特定季节运势不佳。","impact":"在四废对应的季节宜蓄力而非发力。适合学习充电、内部整顿而非对外扩张。"},
+    "破碎": {"symbol":"💔","level":"凶","color":"#FFB000","desc":"破碎星主零碎损耗、小事不断、功败垂成。命带破碎者常遇到事情临门一脚却出意外的状况。","impact":"做事需有耐心，关注细节。重要项目留有余量和备用方案，防患于未然。"},
 }
 
 def analyze_shen_sha_detail(shen_sha):
@@ -1748,6 +1779,188 @@ def format_pillars_detail(analysis):
             lines.append(f"    {interp}")
 
     return "\n".join(lines)
+
+
+
+# ============================================================
+# 19. 胎元/命宫/身宫解读
+# ============================================================
+def analyze_tai_ming_shen(bazi):
+    """解读胎元、命宫、身宫的含义。"""
+    from .core import TIAN_GAN_WX, DI_ZHI_WX, DI_ZHI_CANG_GAN
+
+    result = {}
+
+    # 胎元
+    if bazi.tai_yuan:
+        t_gan = bazi.tai_yuan[0]
+        t_zhi = bazi.tai_yuan[1]
+        t_gan_wx = TIAN_GAN_WX.get(t_gan, "?")
+        t_zhi_wx = DI_ZHI_WX.get(t_zhi, "?")
+
+        tai_desc = f"胎元{bazi.tai_yuan}，是命主在母胎中受气的根基。"
+        tai_desc += f"天干{t_gan}({t_gan_wx})代表先天禀赋，地支{t_zhi}({t_zhi_wx})代表先天体质。"
+        if t_gan_wx == bazi.day_wx:
+            tai_desc += "胎元天干与日主同气，先天根基深厚，天赋与后天发展方向一致。"
+        elif t_gan_wx in ["木","火","土","金","水"]:
+            from .core import WX_RELATION
+            rel = WX_RELATION.get((bazi.day_wx, t_gan_wx), "")
+            if "生我" in str(rel):
+                tai_desc += "胎元天干为日主印星，先天得滋养，体质和命格有天然优势。"
+            elif "克我" in str(rel):
+                tai_desc += "胎元天干为日主官杀，先天带责任感，但也意味着早年压力。"
+            elif "我生" in str(rel):
+                tai_desc += "胎元天干为日主食伤，先天有才华基因，但需后天培养。"
+            elif "我克" in str(rel):
+                tai_desc += "胎元天干为日主财星，先天对物质敏感，有经济头脑。"
+
+        result["胎元"] = {
+            "ganzhi": bazi.tai_yuan,
+            "gan": t_gan, "zhi": t_zhi,
+            "gan_wx": t_gan_wx, "zhi_wx": t_zhi_wx,
+            "description": tai_desc,
+            "icon": "🌱", "color": "#00FF41",
+        }
+
+    # 命宫
+    if bazi.ming_gong:
+        m_gan = bazi.ming_gong[0]
+        m_zhi = bazi.ming_gong[1]
+        m_gan_wx = TIAN_GAN_WX.get(m_gan, "?")
+        m_zhi_wx = DI_ZHI_WX.get(m_zhi, "?")
+
+        ming_desc = f"命宫{bazi.ming_gong}，是命主一生运势的核心枢纽。"
+        ming_desc += f"命宫天干{m_gan}({m_gan_wx})主导精神追求，地支{m_zhi}({m_zhi_wx})主导现实环境。"
+
+        # 命宫与日柱关系
+        if bazi.ming_gong == bazi.day_gan_zhi:
+            ming_desc += "命宫与日柱相同，命主一生自我认知清晰，运势稳定而有方向感。"
+        elif m_gan_wx == bazi.day_wx:
+            ming_desc += "命宫天干与日主同气，精神追求与自身天赋高度吻合。"
+        elif m_zhi_wx == bazi.day_wx:
+            ming_desc += "命宫地支与日主同气，现实环境对命主有利，如鱼得水。"
+
+        # 命宫长生
+        from .core import get_shier_changsheng
+        cs = get_shier_changsheng(bazi.day_gan, m_zhi)
+        cs_meanings = {
+            "长生":"命宫在长生之地，一生运势有生生不息之力。",
+            "帝旺":"命宫在帝旺之地，运势顶峰，但需防盛极而衰。",
+            "临官":"命宫在临官之地，适合在体制内发展，有官运。",
+            "冠带":"命宫在冠带之地，运势稳步上升，中晚年有成。",
+            "沐浴":"命宫在沐浴之地，一生桃花运旺，人际关系丰富。",
+            "衰":"命宫在衰地，运势前高后低，宜未雨绸缪。",
+            "病":"命宫在病地，需特别注意身体健康，劳逸结合。",
+            "死":"命宫在死地，运势有起伏，宜守不宜攻。",
+            "墓":"命宫在墓地，适合深耕某一领域，大器晚成。",
+            "绝":"命宫在绝地，绝处逢生，往往有意想不到的机遇。",
+            "胎":"命宫在胎地，适合创意和创新，新事物中找机会。",
+            "养":"命宫在养地，运势稳步回暖，循循渐进为好。",
+        }
+        cs_text = cs_meanings.get(cs, "")
+        if cs_text:
+            ming_desc += cs_text
+
+        result["命宫"] = {
+            "ganzhi": bazi.ming_gong,
+            "gan": m_gan, "zhi": m_zhi,
+            "gan_wx": m_gan_wx, "zhi_wx": m_zhi_wx,
+            "chang_sheng": cs,
+            "description": ming_desc,
+            "icon": "🏛️", "color": "#FFC107",
+        }
+
+    # 身宫
+    if bazi.shen_gong:
+        s_gan = bazi.shen_gong[0]
+        s_zhi = bazi.shen_gong[1]
+        s_gan_wx = TIAN_GAN_WX.get(s_gan, "?")
+        s_zhi_wx = DI_ZHI_WX.get(s_zhi, "?")
+
+        shen_desc = f"身宫{bazi.shen_gong}，代表后天发展重心和实际行动方向。"
+        shen_desc += f"身宫天干{s_gan}({s_gan_wx})主导后天发展方向，地支{s_zhi}({s_zhi_wx})主导行动落实。"
+
+        # 身宫与命宫关系
+        if bazi.shen_gong == bazi.ming_gong:
+            shen_desc += "身宫与命宫相同（命身同宫），先天与后天高度统一，行事果断不纠结。"
+        elif s_gan_wx == bazi.day_wx:
+            shen_desc += "身宫天干与日主同气，后天行动方向与自身能力匹配度高。"
+        elif s_zhi_wx in ["木","火","土","金","水"]:
+            from .core import WX_RELATION
+            rel = WX_RELATION.get((bazi.day_wx, s_zhi_wx), "")
+            if "生我" in str(rel):
+                shen_desc += "身宫地支为日主印星，后天可得贵人扶持，发展顺利。"
+            elif "我克" in str(rel):
+                shen_desc += "身宫地支为日主财星，后天以追求财富为主要发展动力。"
+
+        result["身宫"] = {
+            "ganzhi": bazi.shen_gong,
+            "gan": s_gan, "zhi": s_zhi,
+            "gan_wx": s_gan_wx, "zhi_wx": s_zhi_wx,
+            "description": shen_desc,
+            "icon": "⚡", "color": "#FF3131",
+        }
+
+    return result
+
+
+# ============================================================
+# 20. 空亡详解
+# ============================================================
+def analyze_xun_kong_detail(bazi):
+    """对空亡进行详细解读。"""
+    from .core import TIAN_GAN_WX, DI_ZHI_WX
+
+    xun_kong_zhi = bazi.xun_kong if isinstance(bazi.xun_kong, list) else [bazi.xun_kong] if bazi.xun_kong else []
+
+    pillar_zhi = {"年": bazi.year_zhi, "月": bazi.month_zhi, "日": bazi.day_zhi, "时": bazi.hour_zhi}
+
+    results = {
+        "xun_kong_zhi": xun_kong_zhi,
+        "description": "",
+        "pillars_affected": [],
+    }
+
+    # 整体含义
+    if xun_kong_zhi:
+        zhi_str = "、".join(xun_kong_zhi)
+        results["description"] = f"命局空亡地支为{zhi_str}。空亡代表虚空、缺失、不实。柱位入空亡者，该柱所代表的事物可能出现不稳定性或延迟，但也意味着此方面不被俗务所累，有超脱之象。"
+
+    # 逐柱检查
+    pillar_domain = {
+        "年": "祖上根基、童年运势",
+        "月": "父母兄弟、少年发展",
+        "日": "自身配偶、中年婚姻",
+        "时": "子女晚运、晚年归宿",
+    }
+    pillar_age = {"年": "早年", "月": "青年", "日": "中年", "时": "晚年"}
+
+    for pname, zhi in pillar_zhi.items():
+        if zhi in xun_kong_zhi:
+            domain = pillar_domain.get(pname, "")
+            age = pillar_age.get(pname, "该阶段")
+
+            meaning_map = {
+                "年": "年柱入空亡，祖上缘薄，童年可能缺少长辈庇护，但也因此培养了独立性格。早年运势起伏较大。",
+                "月": "月柱入空亡，与父母兄弟缘分较浅，少年时期可能较为独立。事业根基需靠自己打拼建立。",
+                "日": "日柱入空亡，配偶宫不稳，婚姻需更多经营。中年运势有不确定性，但也给人生带来更多可能性。",
+                "时": "时柱入空亡，子女缘较薄或子女独立较早。晚年生活可能有孤独感，但精神世界丰富。",
+            }
+
+            results["pillars_affected"].append({
+                "pillar": pname,
+                "zhi": zhi,
+                "domain": domain,
+                "meaning": meaning_map.get(pname, f"{age}运势有虚浮之处，需脚踏实地。"),
+            })
+
+    # 空亡妙用
+    if results["pillars_affected"]:
+        results["positive_note"] = "空亡虽主虚空，但也有妙用——使人不被俗务所困，反而有超然心态。命带空亡者往往在精神、哲学、艺术领域有独特天赋。"
+    else:
+        results["positive_note"] = "命局不落空亡，根基稳固，各阶段运势踏实可靠。"
+
+    return results
 
 def format_bazi_analysis(analysis):
     """将分析结果格式化为可读文本。"""

@@ -106,7 +106,9 @@ def calc_fortune(year, month, day, hour, gender, lunar):
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/" or self.path == "/index.html":
+        # Serve index.html for all page routes
+        page_routes = {"/", "/index.html", "/bazi", "/ziwei", "/hehun"}
+        if self.path in page_routes or self.path.startswith("/bazi") or self.path.startswith("/ziwei") or self.path.startswith("/hehun"):
             try:
                 with open(os.path.join(BASE, "index.html"), "rb") as f:
                     data = f.read()

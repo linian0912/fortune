@@ -187,11 +187,26 @@ class Bazi:
         self.sheng_xiao = SHENG_XIAO[DI_ZHI.index(self.year_zhi)]
 
         # 神煞
-        from .core import (compute_shen_sha, get_xun_kong, get_shier_changsheng,
+        from .core import (compute_shen_sha, compute_month_shen_sha, get_xun_kong, get_shier_changsheng,
                             SHEN_SHA_NAMES, TIAN_YI_GUI_REN, WEN_CHANG, TAO_HUA_MAP,
-                            YI_MA_MAP, HUA_GAI_MAP, YANG_REN, JIANG_XING_MAP)
+                            YI_MA_MAP, HUA_GAI_MAP, YANG_REN, JIANG_XING_MAP,
+                            LU_SHEN_MAP, JIN_YU_MAP, XUE_TANG_MAP,
+                            HONG_LUAN_MAP, TIAN_XI_MAP, GU_CHEN_MAP, GUA_SU_MAP,
+                            JIE_SHA_MAP, ZAI_SHA_MAP, TAI_JI_MAP, FU_XING_MAP, JIN_KUI_MAP,
+                            TIAN_CHU_MAP, GUO_YIN_MAP, KUI_GANG, WANG_SHEN_MAP, FEI_REN_MAP,
+                            SANG_MEN_MAP, DIAO_KE_MAP, BAI_HU_MAP, XUE_REN_MAP,
+                            GOU_JIAO_MAP, SAN_QI, SHI_E_DA_BAI, TIAN_LUO_DI_WANG, YUAN_CHEN_MAP,
+                            TIAN_GUAN_MAP, RI_DE, RI_GUI, JIN_SHEN_HOURS, BA_ZHUAN, JIU_CHOU,
+                            YIN_CUO_YANG_CHA, LIU_E_MAP, PI_MA_MAP, SI_FEI_MAP, PO_SUI)
         pillars_zhi = [self.year_zhi, self.month_zhi, self.day_zhi, self.hour_zhi]
         self.shen_sha = compute_shen_sha(self.day_gan, self.year_zhi, self.day_zhi, pillars_zhi)
+        # 合并月支神煞
+        month_ss = compute_month_shen_sha(self.month_zhi, pillars_zhi)
+        for k, v in month_ss.items():
+            if k not in self.shen_sha:
+                self.shen_sha[k] = v
+            else:
+                self.shen_sha[k].extend(v)
         # 空亡（以日柱所在旬为准）
         day_idx = JIA_ZI.index(self.day_gan_zhi)
         self.xun_kong = get_xun_kong(day_idx)
@@ -208,39 +223,104 @@ class Bazi:
                             ("日", self.day_zhi), ("时", self.hour_zhi)]:
             cang = DI_ZHI_CANG_GAN.get(zhi, [])
             self.di_zhi_shi_shen[label] = [compute_shi_shen(self.day_gan, g) for g in cang]
-        # 每柱的神煞
+        # 每柱的神煞（完整版）
         self.pillar_shen_sha = {"年": [], "月": [], "日": [], "时": []}
         pillar_label_zhi = [("年", self.year_zhi), ("月", self.month_zhi),
                             ("日", self.day_zhi), ("时", self.hour_zhi)]
-        # 天乙
-        tian_yi = TIAN_YI_GUI_REN.get(self.day_gan, [])
-        # 文昌
+        # Build lookup: {shensha_name: target_zhi_or_list}
+        shensha_checks = []
+        # 日干查
+        tian_yi_list = TIAN_YI_GUI_REN.get(self.day_gan, [])
+        shensha_checks.append(("天乙贵人", tian_yi_list))
         wc = WEN_CHANG.get(self.day_gan)
-        # 桃花
-        th = TAO_HUA_MAP.get(self.year_zhi)
-        # 驿马
-        ym = YI_MA_MAP.get(self.year_zhi)
-        # 华盖
-        hg = HUA_GAI_MAP.get(self.year_zhi)
-        # 羊刃
+        if wc: shensha_checks.append(("文昌", [wc]))
         yr = YANG_REN.get(self.day_gan)
-        # 将星
-        jx = JIANG_XING_MAP.get(self.year_zhi)
+        if yr: shensha_checks.append(("羊刃", [yr]))
+        fr = FEI_REN_MAP.get(self.day_gan)
+        if fr: shensha_checks.append(("飞刃", [fr]))
+        ls = LU_SHEN_MAP.get(self.day_gan)
+        if ls: shensha_checks.append(("禄神", [ls]))
+        jy = JIN_YU_MAP.get(self.day_gan)
+        if jy: shensha_checks.append(("金舆", [jy]))
+        xt = XUE_TANG_MAP.get(self.day_gan)
+        if xt: shensha_checks.append(("学堂", [xt]))
+        tj_list = TAI_JI_MAP.get(self.day_gan, [])
+        if tj_list: shensha_checks.append(("太极贵人", tj_list))
+        fx = FU_XING_MAP.get(self.day_gan)
+        if fx: shensha_checks.append(("福星贵人", [fx]))
+        tc = TIAN_CHU_MAP.get(self.day_gan)
+        if tc: shensha_checks.append(("天厨贵人", [tc]))
+        gy = GUO_YIN_MAP.get(self.day_gan)
+        if gy: shensha_checks.append(("国印贵人", [gy]))
+        # 三奇贵人：检查年干+月干+日干
+        year_gan = self.year_gan_zhi[0]
+        month_gan = self.month_gan_zhi[0]
+        gan_trio = {year_gan, month_gan, self.day_gan}
+        if gan_trio in SAN_QI:
+            shensha_checks.append(("三奇贵人", [self.day_zhi]))
+        # 魁罡：日柱
+        if self.day_gan_zhi in KUI_GANG:
+            shensha_checks.append(("魁罡", [self.day_zhi]))
+        # 天官贵人
+        tg = TIAN_GUAN_MAP.get(self.day_gan)
+        if tg: shensha_checks.append(("天官贵人", [tg]))
+        # 十恶大败
+        if self.day_gan_zhi in SHI_E_DA_BAI:
+            shensha_checks.append(("十恶大败", [self.day_zhi]))
+        # 日德
+        if self.day_gan_zhi in RI_DE:
+            shensha_checks.append(("日德", [self.day_zhi]))
+        # 日贵
+        if self.day_gan_zhi in RI_GUI:
+            shensha_checks.append(("日贵", [self.day_zhi]))
+        # 八专
+        if self.day_gan_zhi in BA_ZHUAN:
+            shensha_checks.append(("八专", [self.day_zhi]))
+        # 九丑
+        if self.day_gan_zhi in JIU_CHOU:
+            shensha_checks.append(("九丑", [self.day_zhi]))
+        # 阴错阳差
+        if self.day_gan_zhi in YIN_CUO_YANG_CHA:
+            shensha_checks.append(("阴错阳差", [self.day_zhi]))
+        # 金神：时柱查
+        if self.hour_gan_zhi in JIN_SHEN_HOURS:
+            shensha_checks.append(("金神", [self.hour_zhi]))
+        # 四废：月支+日柱
+        si_fei_set = SI_FEI_MAP.get(self.month_zhi, set())
+        if self.day_gan_zhi in si_fei_set:
+            shensha_checks.append(("四废", [self.day_zhi]))
+        # 破碎：日支查
+        ps = PO_SUI.get(self.day_zhi)
+        if ps:
+            shensha_checks.append(("破碎", [ps]))
+        # 年支查
+        for name, m in [("桃花",TAO_HUA_MAP),("驿马",YI_MA_MAP),("华盖",HUA_GAI_MAP),
+                         ("将星",JIANG_XING_MAP),("红鸾",HONG_LUAN_MAP),("天喜",TIAN_XI_MAP),
+                         ("孤辰",GU_CHEN_MAP),("寡宿",GUA_SU_MAP),("劫煞",JIE_SHA_MAP),
+                         ("灾煞",ZAI_SHA_MAP),("金匮",JIN_KUI_MAP),
+                         ("亡神",WANG_SHEN_MAP),("元辰",YUAN_CHEN_MAP),
+                         ("丧门",SANG_MEN_MAP),("吊客",DIAO_KE_MAP),("白虎",BAI_HU_MAP)]:
+            s = m.get(self.year_zhi)
+            if s: shensha_checks.append((name, [s]))
+        # 勾绞（特殊：两个值）
+        gj = GOU_JIAO_MAP.get(self.year_zhi, {})
+        if gj:
+            if '勾' in gj: shensha_checks.append(("勾绞", [gj['勾']]))
+        le = LIU_E_MAP.get(self.year_zhi)
+        if le: shensha_checks.append(("六厄", [le]))
+        pm = PI_MA_MAP.get(self.year_zhi)
+        if pm: shensha_checks.append(("披麻", [pm]))
+        # 月支查：血刃
+        xr = XUE_REN_MAP.get(self.month_zhi)
+        if xr: shensha_checks.append(("血刃", [xr]))
+        # 天罗地网
+        for z in TIAN_LUO_DI_WANG:
+            shensha_checks.append(("天罗地网", [z]))
+        # Check each pillar
         for label, zhi in pillar_label_zhi:
-            if zhi in tian_yi:
-                self.pillar_shen_sha[label].append("天乙贵人")
-            if zhi == wc:
-                self.pillar_shen_sha[label].append("文昌")
-            if zhi == th:
-                self.pillar_shen_sha[label].append("桃花")
-            if zhi == ym:
-                self.pillar_shen_sha[label].append("驿马")
-            if zhi == hg:
-                self.pillar_shen_sha[label].append("华盖")
-            if zhi == yr:
-                self.pillar_shen_sha[label].append("羊刃")
-            if zhi == jx:
-                self.pillar_shen_sha[label].append("将星")
+            for ss_name, target_list in shensha_checks:
+                if zhi in target_list:
+                    self.pillar_shen_sha[label].append(ss_name)
 
     def display(self):
         lunar_y, lunar_m, lunar_d, lunar_leap = self.lunar_date

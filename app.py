@@ -110,7 +110,7 @@ def application(environ, start_response):
     path = environ.get("PATH_INFO", "/")
     method = environ.get("REQUEST_METHOD", "GET")
 
-    if method == "GET" and (path == "/" or path == "/index.html"):
+    if method == "GET" and (path in {"/", "/index.html", "/bazi", "/ziwei", "/hehun"}):
         start_response("200 OK", [
             ("Content-Type", "text/html; charset=utf-8"),
             ("Content-Length", str(len(INDEX_HTML))),
