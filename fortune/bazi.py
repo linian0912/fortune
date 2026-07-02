@@ -33,8 +33,14 @@ def compute_month_zhi(year, month, day):
         next_jie_idx = jie_list[next_j]
         next_year = year + 1 if next_j == 0 else year
         nm, nd = get_jie_qi_date(next_year, next_jie_idx)
-        if (month > jm or (month == jm and day >= jd)) and \
-           (month < nm or (month == nm and day < nd)):
+        # 处理跨年边界（如大雪12月→小寒1月）
+        if jm <= nm:
+            after = (month > jm or (month == jm and day >= jd))
+            before = (month < nm or (month == nm and day < nd))
+        else:
+            after = (month > jm or (month == jm and day >= jd)) or (month < nm or (month == nm and day < nd))
+            before = True
+        if after and before:
             return YUE_ZHI[j]
     return YUE_ZHI[11]
 
@@ -43,7 +49,7 @@ def compute_month_gan(year_gan, month_zhi):
     gan_idx = get_gan_index(year_gan)
     start_map = {0: 2, 1: 4, 2: 6, 3: 8, 4: 0}
     start = start_map[gan_idx % 5]
-    zhi_idx = DI_ZHI.index(month_zhi)
+    zhi_idx = (DI_ZHI.index(month_zhi) - 2) % 12  # 寅为正月(索引0)
     return TIAN_GAN[(start + zhi_idx) % 10]
 
 

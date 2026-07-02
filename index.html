@@ -1620,6 +1620,20 @@ body::after {
 .meihua-tab:first-child { border-radius: 8px 0 0 8px; }
 .meihua-tab:last-child { border-radius: 0 8px 8px 0; }
 .meihua-tab.active { background: rgba(255,107,157,0.15); border-color: rgba(255,107,157,0.4); color: #FF6B9D; }
+.cal-toggle-row { display: flex; gap: 0; justify-content: center; margin-bottom: 16px; }
+.cal-toggle-btn { padding: 6px 20px; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: var(--text-dim); cursor: pointer; font-family: var(--font-title); transition: all 0.3s; }
+.cal-toggle-btn:first-child { border-radius: 8px 0 0 8px; }
+.cal-toggle-btn:last-child { border-radius: 0 8px 8px 0; }
+.cal-toggle-btn.active { background: rgba(0,255,65,0.15); border-color: rgba(0,255,65,0.4); color: #00FF41; }
+.cal-lunar-row { display: none; }
+.cal-lunar-row.show { display: flex; }
+.cal-solar-row { display: flex; }
+.cal-solar-row.hide { display: none; }
+#qm-lunar-year, #qm-lunar-month, #qm-lunar-day { -moz-appearance: textfield; }
+#qm-lunar-year::-webkit-outer-spin-button, #qm-lunar-year::-webkit-inner-spin-button,
+.#qm-lunar-month::-webkit-outer-spin-button, #qm-lunar-month::-webkit-inner-spin-button,
+.#qm-lunar-day::-webkit-outer-spin-button, #qm-lunar-day::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.lunar-leap-hint { font-size: 10px; color: #FFB000; text-align: center; margin-top: 4px; display: none; }
 .meihua-tab:hover:not(.active) { background: rgba(255,255,255,0.06); }
 .meihua-xiang-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; margin-top: 8px; }
 .meihua-xiang-item { padding: 6px 10px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); font-size: 11px; }
@@ -1879,12 +1893,23 @@ body::after {
       <div class="qimen-hero">
         <p style="color:var(--text-dim);font-size:13px">输入日期时辰，排演奇门九宫格局</p>
       </div>
-      <div class="meihua-input-row">
+      <div class="cal-toggle-row">
+        <button class="cal-toggle-btn active" onclick="switchQimenCal('solar')">☀ 公历</button>
+        <button class="cal-toggle-btn" onclick="switchQimenCal('lunar')">🌙 农历</button>
+      </div>
+      <div class="meihua-input-row cal-solar-row" id="qm-solar-row">
         <div class="meihua-num-group"><label>年份</label><input type="number" id="qm-year" value="2026" min="1900" max="2100"></div>
         <div class="meihua-num-group"><label>月份</label><input type="number" id="qm-month" value="7" min="1" max="12"></div>
         <div class="meihua-num-group"><label>日期</label><input type="number" id="qm-day" value="2" min="1" max="31"></div>
         <div class="meihua-num-group"><label>时辰(0-23)</label><input type="number" id="qm-hour" value="12" min="0" max="23"></div>
       </div>
+      <div class="meihua-input-row cal-lunar-row" id="qm-lunar-row">
+        <div class="meihua-num-group"><label>农历年</label><input type="number" id="qm-lunar-year" value="2026" onchange="updateLeapHint()" min="1900" max="2100"></div>
+        <div class="meihua-num-group"><label>农历月</label><input type="number" id="qm-lunar-month" value="5" min="1" max="13"></div>
+        <div class="meihua-num-group"><label>农历日</label><input type="number" id="qm-lunar-day" value="18" min="1" max="30"></div>
+        <div class="meihua-num-group"><label>时辰(0-23)</label><input type="number" id="qm-lunar-hour" value="12" min="0" max="23"></div>
+      </div>
+      <div class="lunar-leap-hint" id="qm-leap-hint">⚠ 当前农历年有闰月，若选择闰月请将月份设为 13</div>
       <div style="text-align:center;margin-bottom:16px">
         <button class="submit-btn" onclick="doQimenCalc()" style="background:linear-gradient(135deg,rgba(0,255,65,0.3),rgba(0,200,100,0.15));border-color:rgba(0,255,65,0.4)">排 盘</button>
       </div>
@@ -2287,37 +2312,38 @@ const CITY_DATA = {
   '上海':[{name:'上海',lat:31.2304,lng:121.4737}],
   '天津':[{name:'天津',lat:39.1252,lng:117.1907}],
   '重庆':[{name:'重庆',lat:29.4316,lng:106.9123}],
-  '河北':[{name:'石家庄',lat:38.0428,lng:114.5149},{name:'唐山',lat:39.6305,lng:118.1802},{name:'保定',lat:38.8739,lng:115.4646},{name:'邯郸',lat:36.6256,lng:114.5392},{name:'廊坊',lat:39.0494,lng:116.6838},{name:'沧州',lat:38.3044,lng:116.8387},{name:'秦皇岛',lat:39.9356,lng:119.5996}],
-  '山西':[{name:'太原',lat:37.8706,lng:112.5509},{name:'大同',lat:40.0768,lng:113.3001},{name:'运城',lat:35.0265,lng:111.0073},{name:'临汾',lat:36.0880,lng:111.5190}],
-  '内蒙古':[{name:'呼和浩特',lat:40.8424,lng:111.7490},{name:'包头',lat:40.6582,lng:109.8404},{name:'赤峰',lat:42.2566,lng:118.8887},{name:'鄂尔多斯',lat:39.6083,lng:109.7800}],
-  '辽宁':[{name:'沈阳',lat:41.8057,lng:123.4315},{name:'大连',lat:38.9140,lng:121.6147},{name:'鞍山',lat:41.1078,lng:122.9946},{name:'锦州',lat:41.0951,lng:121.1270}],
-  '吉林':[{name:'长春',lat:43.8171,lng:125.3235},{name:'吉林',lat:43.8378,lng:126.5495},{name:'延边',lat:42.9094,lng:129.5088}],
-  '黑龙江':[{name:'哈尔滨',lat:45.8038,lng:126.5350},{name:'齐齐哈尔',lat:47.3543,lng:123.9182},{name:'大庆',lat:46.5907,lng:125.1041},{name:'牡丹江',lat:44.5516,lng:129.6324}],
-  '江苏':[{name:'南京',lat:32.0603,lng:118.7969},{name:'苏州',lat:31.2990,lng:120.5853},{name:'无锡',lat:31.4912,lng:120.3119},{name:'常州',lat:31.8101,lng:119.9741},{name:'南通',lat:31.9796,lng:120.8937},{name:'徐州',lat:34.2057,lng:117.2841},{name:'扬州',lat:32.3942,lng:119.4129}],
-  '浙江':[{name:'杭州',lat:30.2741,lng:120.1551},{name:'宁波',lat:29.8683,lng:121.5440},{name:'温州',lat:28.0029,lng:120.6986},{name:'嘉兴',lat:30.7710,lng:120.7555},{name:'绍兴',lat:30.0297,lng:120.5795},{name:'金华',lat:29.0781,lng:119.6472}],
-  '安徽':[{name:'合肥',lat:31.8206,lng:117.2272},{name:'芜湖',lat:31.3527,lng:118.4331},{name:'蚌埠',lat:32.9163,lng:117.3893},{name:'安庆',lat:30.5427,lng:117.0540},{name:'黄山',lat:29.7152,lng:118.3376}],
-  '福建':[{name:'福州',lat:26.0745,lng:119.2965},{name:'厦门',lat:24.4798,lng:118.0894},{name:'泉州',lat:24.8741,lng:118.6759},{name:'漳州',lat:24.5135,lng:117.6472}],
-  '江西':[{name:'南昌',lat:28.6820,lng:115.8582},{name:'九江',lat:29.7051,lng:116.0019},{name:'赣州',lat:25.8310,lng:114.9348},{name:'景德镇',lat:29.2687,lng:117.1786}],
-  '山东':[{name:'济南',lat:36.6512,lng:117.1201},{name:'青岛',lat:36.0671,lng:120.3826},{name:'烟台',lat:37.4620,lng:121.4481},{name:'潍坊',lat:36.7068,lng:119.1618},{name:'临沂',lat:35.1047,lng:118.3565},{name:'济宁',lat:35.4145,lng:116.5871},{name:'淄博',lat:36.8131,lng:118.0549}],
-  '河南':[{name:'郑州',lat:34.7466,lng:113.6254},{name:'洛阳',lat:34.6197,lng:112.4540},{name:'开封',lat:34.7975,lng:114.3073},{name:'南阳',lat:32.9908,lng:112.5285},{name:'商丘',lat:34.4140,lng:115.6564}],
-  '湖北':[{name:'武汉',lat:30.5928,lng:114.3055},{name:'宜昌',lat:30.6919,lng:111.2860},{name:'襄阳',lat:32.0090,lng:112.1224},{name:'荆州',lat:30.3352,lng:112.2397},{name:'黄石',lat:30.1995,lng:115.0389}],
-  '湖南':[{name:'长沙',lat:28.2282,lng:112.9388},{name:'株洲',lat:27.8277,lng:113.1340},{name:'湘潭',lat:27.8297,lng:112.9441},{name:'衡阳',lat:26.8932,lng:112.5720},{name:'岳阳',lat:29.3573,lng:113.1291},{name:'张家界',lat:29.1170,lng:110.4783}],
-  '广东':[{name:'广州',lat:23.1292,lng:113.2644},{name:'深圳',lat:22.5431,lng:114.0579},{name:'珠海',lat:22.2707,lng:113.5767},{name:'东莞',lat:23.0208,lng:113.7518},{name:'佛山',lat:23.0218,lng:113.1214},{name:'惠州',lat:23.1118,lng:114.4168},{name:'中山',lat:22.5159,lng:113.3926},{name:'汕头',lat:23.3535,lng:116.6822},{name:'湛江',lat:21.2707,lng:110.3590}],
-  '广西':[{name:'南宁',lat:22.8170,lng:108.3665},{name:'柳州',lat:24.3255,lng:109.4155},{name:'桂林',lat:25.2736,lng:110.2900},{name:'北海',lat:21.4811,lng:109.1199}],
-  '海南':[{name:'海口',lat:20.0308,lng:110.3264},{name:'三亚',lat:18.2528,lng:109.5120}],
-  '四川':[{name:'成都',lat:30.5702,lng:104.0648},{name:'绵阳',lat:31.4680,lng:104.6791},{name:'德阳',lat:31.1265,lng:104.3979},{name:'宜宾',lat:28.7512,lng:104.6417},{name:'南充',lat:30.8378,lng:106.1107},{name:'泸州',lat:28.8717,lng:105.4423}],
-  '贵州':[{name:'贵阳',lat:26.6470,lng:106.6302},{name:'遵义',lat:27.7255,lng:106.9272},{name:'毕节',lat:27.2839,lng:105.2916}],
-  '云南':[{name:'昆明',lat:25.0443,lng:102.7094},{name:'大理',lat:25.6065,lng:100.2676},{name:'丽江',lat:26.8567,lng:100.2271},{name:'曲靖',lat:25.4900,lng:103.7963}],
-  '西藏':[{name:'拉萨',lat:29.6500,lng:91.1000}],
-  '陕西':[{name:'西安',lat:34.3416,lng:108.9398},{name:'咸阳',lat:34.3293,lng:108.7093},{name:'宝鸡',lat:34.3618,lng:107.2423},{name:'延安',lat:36.5855,lng:109.4897},{name:'汉中',lat:33.0676,lng:107.0233}],
-  '甘肃':[{name:'兰州',lat:36.0611,lng:103.8343},{name:'天水',lat:34.5809,lng:105.7248},{name:'敦煌',lat:40.1413,lng:94.6620}],
-  '青海':[{name:'西宁',lat:36.6171,lng:101.7785}],
-  '宁夏':[{name:'银川',lat:38.4872,lng:106.2309}],
-  '新疆':[{name:'乌鲁木齐',lat:43.8256,lng:87.6168},{name:'喀什',lat:39.4677,lng:75.9897},{name:'伊犁',lat:43.9168,lng:81.3241}],
-  '香港':[{name:'香港',lat:22.2793,lng:114.1628}],
+  '河北':[{name:'石家庄',lat:38.0428,lng:114.5149},{name:'唐山',lat:39.6305,lng:118.1802},{name:'保定',lat:38.8739,lng:115.4646},{name:'邯郸',lat:36.6256,lng:114.5392},{name:'廊坊',lat:39.0494,lng:116.6838},{name:'沧州',lat:38.3044,lng:116.8387},{name:'秦皇岛',lat:39.9356,lng:119.5996},{name:'邢台',lat:37.0706,lng:114.5044},{name:'张家口',lat:40.8244,lng:114.8876},{name:'承德',lat:40.9516,lng:117.9634},{name:'衡水',lat:37.7389,lng:115.6702}],
+  '山西':[{name:'太原',lat:37.8706,lng:112.5509},{name:'大同',lat:40.0768,lng:113.3001},{name:'运城',lat:35.0265,lng:111.0073},{name:'临汾',lat:36.0880,lng:111.5190},{name:'长治',lat:36.1953,lng:113.1165},{name:'晋中',lat:37.6870,lng:112.7525},{name:'阳泉',lat:37.8567,lng:113.5805},{name:'朔州',lat:39.3316,lng:112.4328},{name:'忻州',lat:38.4167,lng:112.7342},{name:'吕梁',lat:37.5194,lng:111.1447},{name:'晋城',lat:35.4907,lng:112.8515}],
+  '内蒙古':[{name:'呼和浩特',lat:40.8424,lng:111.7490},{name:'包头',lat:40.6582,lng:109.8404},{name:'赤峰',lat:42.2566,lng:118.8887},{name:'鄂尔多斯',lat:39.6083,lng:109.7800},{name:'呼伦贝尔',lat:49.2117,lng:119.7657},{name:'通辽',lat:43.6532,lng:122.2434},{name:'乌海',lat:39.6554,lng:106.7942},{name:'乌兰察布',lat:40.9941,lng:113.1327},{name:'巴彦淖尔',lat:40.7432,lng:107.3877},{name:'锡林郭勒',lat:43.9334,lng:116.0475}],
+  '辽宁':[{name:'沈阳',lat:41.8057,lng:123.4315},{name:'大连',lat:38.9140,lng:121.6147},{name:'鞍山',lat:41.1078,lng:122.9946},{name:'锦州',lat:41.0951,lng:121.1270},{name:'抚顺',lat:41.8804,lng:123.9572},{name:'本溪',lat:41.2941,lng:123.7665},{name:'丹东',lat:40.0008,lng:124.3546},{name:'营口',lat:40.6668,lng:122.2349},{name:'盘锦',lat:41.1199,lng:122.0708},{name:'葫芦岛',lat:40.7110,lng:120.8370},{name:'辽阳',lat:41.2681,lng:123.2374},{name:'朝阳',lat:41.5734,lng:120.4508}],
+  '吉林':[{name:'长春',lat:43.8171,lng:125.3235},{name:'吉林',lat:43.8378,lng:126.5495},{name:'延边',lat:42.9094,lng:129.5088},{name:'四平',lat:43.1664,lng:124.3504},{name:'通化',lat:41.7283,lng:125.9399},{name:'白城',lat:45.6196,lng:122.8387},{name:'辽源',lat:42.8880,lng:125.1437},{name:'松原',lat:45.1411,lng:124.8251},{name:'白山',lat:41.9408,lng:126.4144}],
+  '黑龙江':[{name:'哈尔滨',lat:45.8038,lng:126.5350},{name:'齐齐哈尔',lat:47.3543,lng:123.9182},{name:'大庆',lat:46.5907,lng:125.1041},{name:'牡丹江',lat:44.5516,lng:129.6324},{name:'佳木斯',lat:46.7998,lng:130.3268},{name:'绥化',lat:46.6524,lng:126.9693},{name:'鸡西',lat:45.3039,lng:130.9758},{name:'鹤岗',lat:47.3501,lng:130.2979},{name:'双鸭山',lat:46.6470,lng:131.1584},{name:'伊春',lat:47.7275,lng:128.8406},{name:'黑河',lat:50.2455,lng:127.5274},{name:'七台河',lat:45.7712,lng:131.0033}],
+  '江苏':[{name:'南京',lat:32.0603,lng:118.7969},{name:'苏州',lat:31.2990,lng:120.5853},{name:'无锡',lat:31.4912,lng:120.3119},{name:'常州',lat:31.8101,lng:119.9741},{name:'南通',lat:31.9796,lng:120.8937},{name:'徐州',lat:34.2057,lng:117.2841},{name:'扬州',lat:32.3942,lng:119.4129},{name:'镇江',lat:32.1896,lng:119.4250},{name:'盐城',lat:33.3495,lng:120.1617},{name:'泰州',lat:32.4555,lng:119.9255},{name:'淮安',lat:33.6102,lng:119.0153},{name:'连云港',lat:34.5967,lng:119.2213},{name:'宿迁',lat:33.9620,lng:118.2755}],
+  '浙江':[{name:'杭州',lat:30.2741,lng:120.1551},{name:'宁波',lat:29.8683,lng:121.5440},{name:'温州',lat:28.0029,lng:120.6986},{name:'嘉兴',lat:30.7710,lng:120.7555},{name:'绍兴',lat:30.0297,lng:120.5795},{name:'金华',lat:29.0781,lng:119.6472},{name:'台州',lat:28.6561,lng:121.4208},{name:'湖州',lat:30.8944,lng:120.0868},{name:'衢州',lat:28.9367,lng:118.8748},{name:'丽水',lat:28.4672,lng:119.9229},{name:'舟山',lat:30.0160,lng:122.1068}],
+  '安徽':[{name:'合肥',lat:31.8206,lng:117.2272},{name:'芜湖',lat:31.3527,lng:118.4331},{name:'蚌埠',lat:32.9163,lng:117.3893},{name:'安庆',lat:30.5427,lng:117.0540},{name:'黄山',lat:29.7152,lng:118.3376},{name:'马鞍山',lat:31.6698,lng:118.5069},{name:'淮南',lat:32.6255,lng:116.9998},{name:'淮北',lat:33.9548,lng:116.7983},{name:'铜陵',lat:30.9445,lng:117.8119},{name:'滁州',lat:32.3018,lng:118.3169},{name:'宿州',lat:33.6461,lng:116.9642},{name:'六安',lat:31.7349,lng:116.5219},{name:'亳州',lat:33.8446,lng:115.7790},{name:'池州',lat:30.6647,lng:117.4916},{name:'宣城',lat:30.9404,lng:118.7587}],
+  '福建':[{name:'福州',lat:26.0745,lng:119.2965},{name:'厦门',lat:24.4798,lng:118.0894},{name:'泉州',lat:24.8741,lng:118.6759},{name:'漳州',lat:24.5135,lng:117.6472},{name:'莆田',lat:25.4541,lng:119.0080},{name:'龙岩',lat:25.0753,lng:117.0172},{name:'三明',lat:26.2639,lng:117.6387},{name:'南平',lat:26.6415,lng:118.1777},{name:'宁德',lat:26.6657,lng:119.5477}],
+  '江西':[{name:'南昌',lat:28.6820,lng:115.8582},{name:'九江',lat:29.7051,lng:116.0019},{name:'赣州',lat:25.8310,lng:114.9348},{name:'景德镇',lat:29.2687,lng:117.1786},{name:'上饶',lat:28.4552,lng:117.9682},{name:'宜春',lat:27.8144,lng:114.4168},{name:'吉安',lat:27.1139,lng:114.9938},{name:'抚州',lat:27.9490,lng:116.3582},{name:'萍乡',lat:27.6228,lng:113.8545},{name:'新余',lat:27.8178,lng:114.9174},{name:'鹰潭',lat:28.2601,lng:117.0691}],
+  '山东':[{name:'济南',lat:36.6512,lng:117.1201},{name:'青岛',lat:36.0671,lng:120.3826},{name:'烟台',lat:37.4620,lng:121.4481},{name:'潍坊',lat:36.7068,lng:119.1618},{name:'临沂',lat:35.1047,lng:118.3565},{name:'济宁',lat:35.4145,lng:116.5871},{name:'淄博',lat:36.8131,lng:118.0549},{name:'威海',lat:37.5131,lng:122.1204},{name:'泰安',lat:36.2003,lng:117.0876},{name:'日照',lat:35.4164,lng:119.5271},{name:'德州',lat:37.4357,lng:116.3594},{name:'聊城',lat:36.4570,lng:115.9855},{name:'滨州',lat:37.3823,lng:118.0066},{name:'菏泽',lat:35.2336,lng:115.4806},{name:'枣庄',lat:34.8105,lng:117.3237},{name:'东营',lat:37.4337,lng:118.6746}],
+  '河南':[{name:'郑州',lat:34.7466,lng:113.6254},{name:'洛阳',lat:34.6197,lng:112.4540},{name:'开封',lat:34.7975,lng:114.3073},{name:'南阳',lat:32.9908,lng:112.5285},{name:'商丘',lat:34.4140,lng:115.6564},{name:'新乡',lat:35.3030,lng:113.9268},{name:'安阳',lat:36.0977,lng:114.3931},{name:'许昌',lat:34.0357,lng:113.8526},{name:'平顶山',lat:33.7663,lng:113.1927},{name:'信阳',lat:32.1473,lng:114.0910},{name:'驻马店',lat:33.0114,lng:114.0223},{name:'周口',lat:33.6268,lng:114.7012},{name:'焦作',lat:35.2156,lng:113.2422},{name:'濮阳',lat:35.7619,lng:115.0292},{name:'漯河',lat:33.5814,lng:114.0165},{name:'三门峡',lat:34.7726,lng:111.2003},{name:'鹤壁',lat:35.7472,lng:114.2974}],
+  '湖北':[{name:'武汉',lat:30.5928,lng:114.3055},{name:'宜昌',lat:30.6919,lng:111.2860},{name:'襄阳',lat:32.0090,lng:112.1224},{name:'荆州',lat:30.3352,lng:112.2397},{name:'黄石',lat:30.1995,lng:115.0389},{name:'十堰',lat:32.6295,lng:110.7981},{name:'孝感',lat:30.9248,lng:113.9265},{name:'荆门',lat:31.0354,lng:112.1993},{name:'鄂州',lat:30.3907,lng:114.8946},{name:'黄冈',lat:30.4521,lng:114.8799},{name:'咸宁',lat:29.8414,lng:114.3226},{name:'随州',lat:31.6902,lng:113.3826},{name:'恩施',lat:30.2722,lng:109.4882}],
+  '湖南':[{name:'长沙',lat:28.2282,lng:112.9388},{name:'株洲',lat:27.8277,lng:113.1340},{name:'湘潭',lat:27.8297,lng:112.9441},{name:'衡阳',lat:26.8932,lng:112.5720},{name:'岳阳',lat:29.3573,lng:113.1291},{name:'张家界',lat:29.1170,lng:110.4783},{name:'常德',lat:29.0316,lng:111.6985},{name:'益阳',lat:28.5543,lng:112.3555},{name:'郴州',lat:25.7706,lng:113.0153},{name:'永州',lat:26.4203,lng:111.6137},{name:'怀化',lat:27.5694,lng:109.9987},{name:'娄底',lat:27.6973,lng:112.0025},{name:'邵阳',lat:27.2389,lng:111.4679},{name:'湘西',lat:28.3119,lng:109.7392}],
+  '广东':[{name:'广州',lat:23.1292,lng:113.2644},{name:'深圳',lat:22.5431,lng:114.0579},{name:'珠海',lat:22.2707,lng:113.5767},{name:'东莞',lat:23.0208,lng:113.7518},{name:'佛山',lat:23.0218,lng:113.1214},{name:'惠州',lat:23.1118,lng:114.4168},{name:'中山',lat:22.5159,lng:113.3926},{name:'汕头',lat:23.3535,lng:116.6822},{name:'湛江',lat:21.2707,lng:110.3590},{name:'江门',lat:22.5787,lng:113.0815},{name:'肇庆',lat:23.0471,lng:112.4651},{name:'茂名',lat:21.6632,lng:110.9253},{name:'梅州',lat:24.2884,lng:116.1225},{name:'汕尾',lat:22.7856,lng:115.3754},{name:'河源',lat:23.7437,lng:114.7004},{name:'阳江',lat:21.8582,lng:111.9826},{name:'清远',lat:23.6820,lng:113.0560},{name:'韶关',lat:24.8104,lng:113.5971},{name:'揭阳',lat:23.5497,lng:116.3727},{name:'潮州',lat:23.6568,lng:116.6226},{name:'云浮',lat:22.9153,lng:112.0445}],
+  '广西':[{name:'南宁',lat:22.8170,lng:108.3665},{name:'柳州',lat:24.3255,lng:109.4155},{name:'桂林',lat:25.2736,lng:110.2900},{name:'北海',lat:21.4811,lng:109.1199},{name:'梧州',lat:23.4748,lng:111.2792},{name:'玉林',lat:22.6363,lng:110.1810},{name:'百色',lat:23.9022,lng:106.6184},{name:'河池',lat:24.6929,lng:108.0854},{name:'钦州',lat:21.9807,lng:108.6543},{name:'防城港',lat:21.6869,lng:108.3547},{name:'贵港',lat:23.1113,lng:109.5989},{name:'贺州',lat:24.4035,lng:111.5666},{name:'来宾',lat:23.7503,lng:109.2215},{name:'崇左',lat:22.3788,lng:107.3650}],
+  '海南':[{name:'海口',lat:20.0308,lng:110.3264},{name:'三亚',lat:18.2528,lng:109.5120},{name:'儋州',lat:19.5210,lng:109.5807},{name:'琼海',lat:19.2583,lng:110.4746},{name:'文昌',lat:19.5433,lng:110.7975},{name:'万宁',lat:18.7962,lng:110.3900},{name:'东方',lat:19.1019,lng:108.6479},{name:'五指山',lat:18.7751,lng:109.5169}],
+  '四川':[{name:'成都',lat:30.5702,lng:104.0648},{name:'绵阳',lat:31.4680,lng:104.6791},{name:'德阳',lat:31.1265,lng:104.3979},{name:'宜宾',lat:28.7512,lng:104.6417},{name:'南充',lat:30.8378,lng:106.1107},{name:'泸州',lat:28.8717,lng:105.4423},{name:'乐山',lat:29.5521,lng:103.7656},{name:'达州',lat:31.2095,lng:107.4680},{name:'广元',lat:32.4355,lng:105.8436},{name:'遂宁',lat:30.5329,lng:105.5929},{name:'内江',lat:29.5802,lng:105.0584},{name:'自贡',lat:29.3392,lng:104.7782},{name:'攀枝花',lat:26.5824,lng:101.7186},{name:'眉山',lat:30.0756,lng:103.8485},{name:'资阳',lat:30.1289,lng:104.6272},{name:'广安',lat:30.4560,lng:106.6331},{name:'雅安',lat:30.0106,lng:103.0424},{name:'巴中',lat:31.8671,lng:106.7473}],
+  '贵州':[{name:'贵阳',lat:26.6470,lng:106.6302},{name:'遵义',lat:27.7255,lng:106.9272},{name:'毕节',lat:27.2839,lng:105.2916},{name:'安顺',lat:26.2533,lng:105.9470},{name:'六盘水',lat:26.5933,lng:104.8304},{name:'铜仁',lat:27.7315,lng:109.1895},{name:'黔东南',lat:26.5837,lng:107.9841},{name:'黔南',lat:26.2541,lng:107.5221},{name:'黔西南',lat:25.0899,lng:104.9046}],
+  '云南':[{name:'昆明',lat:25.0389,lng:102.7183},{name:'大理',lat:25.6065,lng:100.2675},{name:'丽江',lat:26.8721,lng:100.2298},{name:'曲靖',lat:25.5016,lng:103.7962},{name:'玉溪',lat:24.3519,lng:102.5472},{name:'保山',lat:25.1121,lng:99.1618},{name:'昭通',lat:27.3382,lng:103.7173},{name:'普洱',lat:22.8252,lng:100.9667},{name:'临沧',lat:23.8842,lng:100.0889},{name:'楚雄',lat:25.0330,lng:101.5460},{name:'红河',lat:23.3668,lng:103.3746},{name:'文山',lat:23.3985,lng:104.2163},{name:'西双版纳',lat:22.0082,lng:100.7977},{name:'德宏',lat:24.4330,lng:98.5857},{name:'迪庆',lat:27.8191,lng:99.7025}],
+  '西藏':[{name:'拉萨',lat:29.6500,lng:91.1000},{name:'日喀则',lat:29.2650,lng:88.8811},{name:'昌都',lat:31.1420,lng:97.1784},{name:'林芝',lat:29.6489,lng:94.3614},{name:'山南',lat:29.2371,lng:91.7704},{name:'那曲',lat:31.4761,lng:92.0515},{name:'阿里',lat:32.5011,lng:80.1055}],
+  '陕西':[{name:'西安',lat:34.3416,lng:108.9398},{name:'咸阳',lat:34.3293,lng:108.7093},{name:'宝鸡',lat:34.3619,lng:107.2377},{name:'渭南',lat:34.4996,lng:109.5098},{name:'汉中',lat:33.0676,lng:107.0238},{name:'榆林',lat:38.2853,lng:109.7340},{name:'延安',lat:36.5852,lng:109.4890},{name:'安康',lat:32.6848,lng:109.0291},{name:'商洛',lat:33.8704,lng:109.9405},{name:'铜川',lat:34.8968,lng:108.9451}],
+  '甘肃':[{name:'兰州',lat:36.0611,lng:103.8343},{name:'天水',lat:34.5809,lng:105.7249},{name:'酒泉',lat:39.7329,lng:98.4940},{name:'嘉峪关',lat:39.7713,lng:98.2882},{name:'张掖',lat:38.9318,lng:100.4497},{name:'金昌',lat:38.5201,lng:102.1880},{name:'武威',lat:37.9283,lng:102.6380},{name:'白银',lat:36.5453,lng:104.1377},{name:'平凉',lat:35.5430,lng:106.6652},{name:'庆阳',lat:35.7096,lng:107.6436},{name:'定西',lat:35.5806,lng:104.6203},{name:'陇南',lat:33.4010,lng:104.9218},{name:'临夏',lat:35.6022,lng:103.2430},{name:'甘南',lat:34.9834,lng:102.9110}],
+  '青海':[{name:'西宁',lat:36.6171,lng:101.7785},{name:'海东',lat:36.4821,lng:102.4019},{name:'海西',lat:37.3771,lng:97.3712},{name:'海南',lat:36.2715,lng:100.6204},{name:'海北',lat:36.9546,lng:100.9010},{name:'黄南',lat:35.5199,lng:102.0150},{name:'果洛',lat:34.4739,lng:100.2449},{name:'玉树',lat:33.0052,lng:97.0065}],
+  '宁夏':[{name:'银川',lat:38.4872,lng:106.2309},{name:'石嘴山',lat:38.9840,lng:106.3833},{name:'吴忠',lat:37.9976,lng:106.1983},{name:'固原',lat:36.0158,lng:106.2423},{name:'中卫',lat:37.5000,lng:105.1968}],
+  '新疆':[{name:'乌鲁木齐',lat:43.8256,lng:87.6168},{name:'克拉玛依',lat:45.5943,lng:84.8879},{name:'吐鲁番',lat:42.9514,lng:89.1841},{name:'哈密',lat:42.8265,lng:93.5149},{name:'昌吉',lat:44.0112,lng:87.2675},{name:'伊犁',lat:43.9221,lng:81.3232},{name:'喀什',lat:39.4704,lng:75.9897},{name:'阿克苏',lat:41.1688,lng:80.2606},{name:'库尔勒',lat:41.7264,lng:86.1737},{name:'石河子',lat:44.3054,lng:86.0804},{name:'和田',lat:37.1141,lng:79.9225},{name:'阿勒泰',lat:47.8449,lng:88.1413}],
+  '香港':[{name:'香港',lat:22.3193,lng:114.1694}],
   '澳门':[{name:'澳门',lat:22.1987,lng:113.5439}],
-  '台湾':[{name:'台北',lat:25.0330,lng:121.5654},{name:'高雄',lat:22.6203,lng:120.3204},{name:'台中',lat:24.1776,lng:120.6369},{name:'台南',lat:22.9999,lng:120.2065}]
+  '台湾':[{name:'台北',lat:25.0330,lng:121.5654},{name:'高雄',lat:22.6203,lng:120.3204},{name:'台中',lat:24.1776,lng:120.6369},{name:'台南',lat:22.9999,lng:120.2065},{name:'新竹',lat:24.8042,lng:120.9686},{name:'基隆',lat:25.1317,lng:121.7438},{name:'嘉义',lat:23.4798,lng:120.4493},{name:'花莲',lat:23.9917,lng:121.6033},{name:'台东',lat:22.7575,lng:121.1445},{name:'彰化',lat:24.0754,lng:120.5424}]
 };
+
 
 // 时辰映射
 const SHI_CHEN_LIST = [
@@ -4220,12 +4246,148 @@ function getHourGanZhi(year, month, day, hour) {
   return { dayIdx: dayGzIdx, hourZhi: hourZhiIdx };
 }
 
-function doQimenCalc() {
-  var y = parseInt(document.getElementById('qm-year').value) || 2026;
-  var m = parseInt(document.getElementById('qm-month').value) || 7;
-  var d = parseInt(document.getElementById('qm-day').value) || 2;
-  var h = parseInt(document.getElementById('qm-hour').value) || 12;
+
+// ============================================
+// 奇门遁甲 - 公历/农历切换
+// ============================================
+function switchQimenCal(type) {
+  document.querySelectorAll('#page-qimen .cal-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.getElementById('qm-solar-row').classList.toggle('hide', type !== 'solar');
+  document.getElementById('qm-lunar-row').classList.toggle('show', type === 'lunar');
+  document.getElementById('qimen-result').style.display = 'none';
+  if (type === 'lunar') updateLeapHint();
+}
+function updateLeapHint() {
+  var ly = parseInt(document.getElementById('qm-lunar-year').value) || 2026;
+  var leap = getLeapMonth(ly);
+  var hint = document.getElementById('qm-leap-hint');
+  if (leap > 0) { hint.style.display = 'block'; hint.textContent = '⚠ 农历' + ly + '年有闰' + leap + '月，若选闰月请将月份设为 ' + (leap + 1); }
+  else { hint.style.display = 'none'; }
+}
+
+// 农历转公历核心算法 (1900-2100)
+var LUNAR_INFO = [
+  // 每个年的信息：低12位=每月大小月(1=30天,0=29天，从正月到腊月)
+  // 高4位=闰月月份(0=无闰月)
+  0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+  0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+  0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+  0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+  0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+  0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+  0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+  0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+  0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+  0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0,
+  0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+  0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+  0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+  0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+  0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+  0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+  0x092e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+  0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+  0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+  0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a4d0,0x0d150,0x0f252,
+  0x0d520
+];
+
+function lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeap) {
+  // 计算从1900年正月初一到目标日期的天数
+  var offset = 0;
+  for (var i = 1900; i < lunarYear; i++) {
+    offset += lunarYearDays(i);
+  }
   
+  var info = LUNAR_INFO[lunarYear - 1900];
+  var leapMonth = (info >> 12) & 0xf; // 闰月月份(0=无)
+  var monthsDays = [];
+  
+  for (var m = 1; m <= 12; m++) {
+    monthsDays.push(((info >> (12 - m)) & 1) ? 30 : 29);
+  }
+  
+  // Add leap month if exists
+  if (leapMonth > 0) {
+    var leapDays = ((info >> (12 - leapMonth)) & 1) ? 30 : 29;
+    monthsDays.splice(leapMonth, 0, leapDays);
+  }
+  
+  // Calculate offset within the year
+  var passedLeap = false;
+  for (var m = 1; m < lunarMonth; m++) {
+    if (m === leapMonth + 1 && isLeap) {
+      offset += monthsDays[leapMonth];
+      passedLeap = true;
+    }
+    var idx = m - 1;
+    if (leapMonth > 0 && m > leapMonth) idx += 1;
+    offset += monthsDays[idx];
+  }
+  
+  offset += (lunarDay - 1);
+  
+  // Convert offset to solar date (base: 1900-01-31 = 1900年正月初一)
+  var base = new Date(1900, 0, 31);
+  var solar = new Date(base.getTime() + offset * 86400000);
+  
+  return {
+    year: solar.getFullYear(),
+    month: solar.getMonth() + 1,
+    day: solar.getDate()
+  };
+}
+
+function lunarYearDays(y) {
+  var info = LUNAR_INFO[y - 1900];
+  var days = 0;
+  for (var m = 1; m <= 12; m++) {
+    days += ((info >> (12 - m)) & 1) ? 30 : 29;
+  }
+  var leap = (info >> 12) & 0xf;
+  if (leap > 0) {
+    days += ((info >> (12 - leap)) & 1) ? 30 : 29;
+  }
+  return days;
+}
+
+function getLeapMonth(y) {
+  return (LUNAR_INFO[y - 1900] >> 12) & 0xf;
+}
+
+function getLunarMonthDays(y, m, isLeap) {
+  var info = LUNAR_INFO[y - 1900];
+  var leap = (info >> 12) & 0xf;
+  if (isLeap && m === leap) {
+    return ((info >> (12 - leap)) & 1) ? 30 : 29;
+  }
+  var idx = m - 1;
+  if (leap > 0 && m > leap) idx += 1;
+  return ((info >> (11 - idx)) & 1) ? 30 : 29;
+}
+
+function doQimenCalc() {
+  var isLunar = document.getElementById('qm-lunar-row').classList.contains('show');
+  var y, m, d, h;
+  
+  if (isLunar) {
+    var ly = parseInt(document.getElementById('qm-lunar-year').value) || 2026;
+    var lm = parseInt(document.getElementById('qm-lunar-month').value) || 5;
+    var ld = parseInt(document.getElementById('qm-lunar-day').value) || 18;
+    h = parseInt(document.getElementById('qm-lunar-hour').value) || 12;
+    // Handle leap month: if lunar month 13 is used, it means leap month
+    var isLeap = false;
+    var leapM = getLeapMonth(ly);
+    if (lm === 13 && leapM > 0) { lm = leapM; isLeap = true; }
+    var solar = lunarToSolar(ly, lm, ld, isLeap);
+    y = solar.year; m = solar.month; d = solar.day;
+  } else {
+    y = parseInt(document.getElementById('qm-year').value) || 2026;
+    m = parseInt(document.getElementById('qm-month').value) || 7;
+    d = parseInt(document.getElementById('qm-day').value) || 2;
+    h = parseInt(document.getElementById('qm-hour').value) || 12;
+  }  
   var jq = getJieQi(y, m, d);
   var isYangDun = jq.dun === '阳';
   var gz = getHourGanZhi(y, m, d, h);
