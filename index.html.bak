@@ -1098,7 +1098,7 @@ body::after {
 /* ===== 打印样式 ===== */
 @media print {
   body::before, body::after, #starfield, .export-bar, footer,
-  .input-card, #compat-section, .mode-tabs, .loading-state, .empty-state { display: none !important; }
+  .input-card, #compat-section, .loading-state, .empty-state, .back-bar { display: none !important; }
   body { background: #121214 !important; color: #e0e0e8 !important; }
   .main-container { max-width: 100%; padding: 10px; }
   .glass-card { break-inside: avoid; border: 1px solid rgba(255,255,255,0.1); box-shadow: none; }
@@ -1210,6 +1210,208 @@ body::after {
   border-radius: 6px; border: 1px solid rgba(0,255,65,0.08);
 }
 
+
+/* ===== 多页面 ===== */
+.hidden { display: none !important; }
+.back-bar { display: flex; align-items: center; padding: 0 0 12px; }
+.back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 20px; font-size: 12px; color: var(--text-dim); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; font-family: var(--font-title); letter-spacing: 1px; transition: var(--transition); }
+.back-btn:hover { color: var(--wx-cyan); border-color: rgba(0,229,255,0.25); background: rgba(0,229,255,0.04); }
+
+.landing-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 40px 20px; }
+.landing-hero { margin-bottom: 50px; }
+.landing-hero .cosmic-symbol { font-size: 64px; margin-bottom: 16px; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 0 24px rgba(255,193,7,0.6)); }
+.landing-hero h1 { font-size: 46px; font-weight: 900; letter-spacing: 12px; background: linear-gradient(135deg,var(--wx-gold),var(--wx-cyan),var(--wx-red)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; filter:drop-shadow(0 0 12px rgba(255,193,7,0.3)); }
+.landing-hero .subtitle { font-size:12px; letter-spacing:10px; color:var(--text-dim); text-transform:uppercase; }
+.landing-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:780px; width:100%; }
+@media(max-width:680px){ .landing-cards{grid-template-columns:1fr;max-width:320px;} .landing-hero h1{font-size:32px;letter-spacing:6px;} }
+.landing-card { position:relative; overflow:hidden; background:var(--bg-card); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid var(--border-card); border-radius:var(--radius); padding:36px 20px; cursor:pointer; transition:all 0.35s cubic-bezier(0.22,1,0.36,1); text-align:center; box-shadow:0 0 20px rgba(255,193,7,0.03),0 0 40px rgba(0,229,255,0.02); }
+.landing-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; opacity:0.4; transition:opacity 0.35s; }
+.landing-card:hover { transform:translateY(-6px); border-color:rgba(255,193,7,0.25); box-shadow:0 0 40px rgba(255,193,7,0.08),0 0 80px rgba(0,229,255,0.05); }
+.landing-card:hover::before { opacity:0.8; }
+.landing-card .lc-icon { font-size:44px; margin-bottom:16px; display:block; transition:transform 0.35s; }
+.landing-card:hover .lc-icon { transform:scale(1.1); }
+.landing-card .lc-title { font-size:20px; font-weight:900; letter-spacing:6px; margin-bottom:8px; }
+.landing-card .lc-desc { font-size:11px; color:var(--text-dim); line-height:1.7; letter-spacing:1px; }
+.landing-card .lc-badge { display:inline-block; margin-top:12px; font-size:9px; padding:3px 12px; border-radius:12px; letter-spacing:2px; font-weight:600; border:1px solid; }
+.landing-card.lc-bazi::before { background:linear-gradient(90deg,transparent,#FFC107,#FF3131,transparent); }
+.landing-card.lc-bazi:hover { border-color:rgba(255,193,7,0.3); }
+.landing-card.lc-ziwei::before { background:linear-gradient(90deg,transparent,#00E5FF,#00FF41,transparent); }
+.landing-card.lc-ziwei:hover { border-color:rgba(0,229,255,0.3); }
+.landing-card.lc-hehun::before { background:linear-gradient(90deg,transparent,#FF6B9D,#FFC107,transparent); }
+.landing-card.lc-hehun:hover { border-color:rgba(255,107,157,0.3); }
+.landing-footer { text-align:center; margin-top:50px; color:rgba(255,255,255,0.05); font-size:10px; letter-spacing:4px; }
+
+
+/* ============================================
+   MOBILE RESPONSIVE — 全站移动端适配
+   ============================================ */
+
+/* --- 通用：小屏手机 < 400px --- */
+@media (max-width: 400px) {
+  :root { --radius: 10px; --radius-sm: 6px; }
+  .main-container { padding: 16px 10px 60px; }
+  .glass-card { padding: 16px !important; }
+  .section-label { font-size: 9px; letter-spacing: 3px; margin-bottom: 14px; }
+  
+  /* Hero */
+  .landing-hero .cosmic-symbol { font-size: 44px; }
+  .landing-hero h1 { font-size: 26px; letter-spacing: 6px; }
+  .landing-hero .subtitle { font-size: 10px; letter-spacing: 6px; }
+  .landing-hero { margin-bottom: 30px; }
+  
+  /* Landing cards */
+  .landing-cards { max-width: 100%; gap: 14px; }
+  .landing-card { padding: 24px 14px; }
+  .landing-card .lc-icon { font-size: 32px; margin-bottom: 10px; }
+  .landing-card .lc-title { font-size: 17px; letter-spacing: 4px; }
+  
+  /* Input */
+  .input-grid { gap: 8px; }
+  .datetime-wrapper { flex-direction: column; gap: 6px; }
+  .shichen-display { padding: 6px 10px; font-size: 11px; }
+  .option-row { flex-direction: column; gap: 10px; align-items: stretch; }
+  .option-group { justify-content: space-between; }
+  .neon-pill { padding: 8px 16px; font-size: 11px; min-height: 40px; }
+  .submit-btn { width: 100%; padding: 14px; font-size: 14px; letter-spacing: 4px; }
+  
+  /* Bazi vertical table */
+  .bazi-vert-table { font-size: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bv-label { font-size: 9px; min-width: 36px; }
+  .bv-col { padding: 6px 4px; min-width: 60px; }
+  .bv-ganzhi { font-size: 18px; letter-spacing: 2px; }
+  
+  /* Pillar grid */
+  .pillar-grid { grid-template-columns: repeat(2, 1fr); }
+  
+  /* Score card */
+  .score-card { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+  .score-info .si-title { font-size: 13px; }
+  .score-info .si-detail { font-size: 10px; }
+  
+  /* Radar */
+  .radar-wrap svg { max-width: 200px; }
+  
+  /* Dayun timeline */
+  .dt-age { font-size: 17px; min-width: 38px; }
+  .dt-gz { font-size: 13px; min-width: 32px; }
+  .dt-detail { font-size: 10px; }
+  
+  /* Info row */
+  .info-row { gap: 12px; font-size: 11px; flex-direction: column; align-items: flex-start; }
+  
+  /* Ziwei orbit */
+  .zw-orbit { width: 280px; height: 280px; }
+  .zw-node { width: 56px; font-size: 7px; }
+  .zw-node .n-name { font-size: 8px; }
+  .zw-node .n-stars { font-size: 7px; }
+  .zw-center { width: 44px; height: 44px; }
+  .zw-center .center-icon { font-size: 14px; }
+  
+  /* Pillar detail */
+  .pd-header { gap: 6px; }
+  .pd-ganzhi { font-size: 17px; letter-spacing: 2px; }
+  .pd-interps { font-size: 10px; line-height: 1.6; }
+  
+  /* Nayin / Shensha / Liunian / TMS */
+  .nayin-grid, .shensha-grid, .liunian-grid, .tms-grid, .all-gongs-grid { grid-template-columns: 1fr !important; }
+  .xch-grid { flex-direction: column; }
+  
+  /* Compat */
+  .compat-input-row { grid-template-columns: 1fr; }
+  .compat-person { padding: 10px; }
+  .compat-vs { font-size: 16px; padding: 4px 0; }
+  
+  /* Aspect cards */
+  .aspect-grid { grid-template-columns: 1fr; }
+  
+  /* Footer */
+  .landing-footer { margin-top: 30px; font-size: 8px; letter-spacing: 2px; }
+  
+  /* Back button */
+  .back-btn { padding: 6px 14px; font-size: 11px; }
+}
+
+/* --- 中等手机 400-640px --- */
+@media (min-width: 401px) and (max-width: 640px) {
+  .main-container { padding: 24px 14px 60px; }
+  .input-grid { grid-template-columns: repeat(2, 1fr); }
+  .option-row { flex-wrap: wrap; gap: 10px; }
+  .submit-btn { padding: 12px 28px; font-size: 14px; }
+  
+  .bazi-vert-table { font-size: 11px; overflow-x: auto; }
+  .bv-col { padding: 8px 6px; min-width: 72px; }
+  
+  .zw-orbit { width: 320px; height: 320px; }
+  
+  .nayin-grid, .shensha-grid { grid-template-columns: repeat(2, 1fr); }
+  .liunian-grid { grid-template-columns: repeat(3, 1fr); }
+  .tms-grid, .all-gongs-grid { grid-template-columns: repeat(2, 1fr); }
+  .aspect-grid { grid-template-columns: repeat(2, 1fr); }
+  
+  .landing-cards { max-width: 480px; }
+  .landing-card { padding: 28px 16px; }
+  
+  .pillar-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* --- 平板 < 900px --- */
+@media (min-width: 641px) and (max-width: 900px) {
+  .main-container { max-width: 100%; padding: 32px 20px 80px; }
+  .zw-orbit { width: 380px; height: 380px; }
+  .landing-cards { max-width: 680px; gap: 18px; }
+}
+
+/* --- 全局触摸优化 --- */
+@media (hover: none) and (pointer: coarse) {
+  .neon-pill, .pill, .submit-btn, .back-btn, .landing-card, .mode-tab {
+    min-height: 44px;
+  }
+  .neon-pill, .pill { padding: 10px 18px; }
+  .back-btn { padding: 10px 18px; }
+}
+
+/* --- 竖向表格响应式 --- */
+.bazi-vert-table {
+  width: 100%;
+}
+@media (max-width: 500px) {
+  .bazi-vert-table .bv-row {
+    flex-wrap: nowrap;
+  }
+}
+
+/* --- 综合解读 aspect-grid --- */
+.aspect-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+@media (max-width: 600px) {
+  .aspect-grid { grid-template-columns: 1fr; }
+}
+
+/* --- 选项行 --- */
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.option-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- 大运时间线触屏 --- */
+@media (max-width: 500px) {
+  .dayun-timeline { padding: 0 4px; }
+  .dt-item { gap: 8px; padding-left: 12px; }
+  .dt-item::before { left: -4px; width: 6px; height: 6px; }
+}
+
 </style>
 </head>
 <body>
@@ -1219,21 +1421,42 @@ body::after {
 
 <div class="main-container">
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="cosmic-symbol">☯</div>
-    <h1>命 理 推 算</h1>
-    <p class="subtitle">Cyber Destiny · 赛博命理</p>
+  <!-- ===== 首页 ===== -->
+  <section id="landing" class="landing-page">
+    <div class="landing-hero">
+      <div class="cosmic-symbol">☯</div>
+      <h1>命 理 推 算</h1>
+      <p class="subtitle">Cyber Destiny · 赛博命理</p>
+    </div>
+    <div class="landing-cards">
+      <div class="landing-card lc-bazi" onclick="goPage('bazi')">
+        <span class="lc-icon">🏛️</span>
+        <div class="lc-title" style="color:#FFC107">四柱八字</div>
+        <div class="lc-desc">天干地支 · 十神五行<br>用神忌神 · 大运流年</div>
+        <span class="lc-badge" style="color:#FFC107;border-color:#FFC10733;background:#FFC10708">命理推演</span>
+      </div>
+      <div class="landing-card lc-ziwei" onclick="goPage('ziwei')">
+        <span class="lc-icon">✨</span>
+        <div class="lc-title" style="color:#00E5FF">紫微斗数</div>
+        <div class="lc-desc">星曜布阵 · 十二宫位<br>三方四正 · 四化飞星</div>
+        <span class="lc-badge" style="color:#00E5FF;border-color:#00E5FF33;background:#00E5FF08">星盘解读</span>
+      </div>
+      <div class="landing-card lc-hehun" onclick="goPage('hehun')">
+        <span class="lc-icon">💑</span>
+        <div class="lc-title" style="color:#FF6B9D">合婚配对</div>
+        <div class="lc-desc">八字合参 · 紫微互照<br>缘分指数 · 婚姻指南</div>
+        <span class="lc-badge" style="color:#FF6B9D;border-color:#FF6B9D33;background:#FF6B9D08">缘分分析</span>
+      </div>
+    </div>
+    <div class="landing-footer">✦ 天干地支 · 紫微斗数 · 合婚配对 ✦</div>
   </section>
 
-  <!-- 输入卡片 -->
-  <section class="glass-card input-card">
-    <div class="section-label">⏣ 出生信息</div>
-    <div class="mode-tabs">
-      <div class="mode-tab active" data-mode="bazi" onclick="switchMode('bazi')">四柱八字</div>
-      <div class="mode-tab" data-mode="ziwei" onclick="switchMode('ziwei')">紫微斗数</div>
-    </div>
-    <div class="input-grid">
+  <!-- ===== 八字页 ===== -->
+  <div id="page-bazi" class="hidden">
+    <div class="back-bar"><button class="back-btn" onclick="goPage('landing')">← 返回首页</button></div>
+    <section class="glass-card input-card">
+    <div class="section-label">⏣ 出生信息 · 四柱八字</div>
+        <div class="input-grid">
       <div class="input-group" style="grid-column: 1 / -1;">
         <label>出生日期 & 时辰</label>
         <div class="datetime-wrapper">
@@ -1266,8 +1489,53 @@ body::after {
       <button class="submit-btn" onclick="calculate()">开 始 推 算</button>
     </div>
   </section>
+    <div class="results-container" id="results">
+    <div class="empty-state">
+      <div class="icon">✦</div>
+      <p>输入出生信息，点击「开始推算」<br>揭开你的命理密码</p>
+    </div>
+  </div>
+</div>
 
-  <!-- 合婚配对 -->
+
+  </div>
+
+  <!-- ===== 紫微页 ===== -->
+  <div id="page-ziwei" class="hidden">
+    <div class="back-bar"><button class="back-btn" onclick="goPage('landing')">← 返回首页</button></div>
+    <section class="glass-card input-card">
+      <div class="section-label">⏣ 出生信息 · 紫微斗数</div>
+      <div class="input-grid">
+        <div class="input-group" style="grid-column:1/-1">
+          <label>出生日期 & 时辰</label>
+          <div class="datetime-wrapper">
+            <input type="datetime-local" id="zw-birthday" value="1990-05-20T14:00" min="1900-01-01T00:00" max="2100-12-31T23:59" step="3600">
+            <div class="shichen-display" id="zw-shichen-display">
+              <span class="sc-dot"></span><span class="sc-text">未时</span><span class="sc-range">13:00-15:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="option-row">
+        <div class="option-group">
+          <span class="opt-label">性别</span>
+          <div class="neon-pills" id="zw-gender-pills">
+            <button class="neon-pill active" data-value="male">男</button>
+            <button class="neon-pill" data-value="female">女</button>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="calcZiwei()">开 始 推 算</button>
+      </div>
+    </section>
+    <div class="results-container" id="zw-results">
+      <div class="empty-state"><div class="icon">✦</div><p>输入出生信息，点击「开始推算」<br>揭开你的紫微命盘</p></div>
+    </div>
+  </div>
+
+  <!-- ===== 合婚页 ===== -->
+  <div id="page-hehun" class="hidden">
+    <div class="back-bar"><button class="back-btn" onclick="goPage('landing')">← 返回首页</button></div>
+    <!-- 合婚配对 -->
   <section class="glass-card input-card compat-card" id="compat-section">
     <div class="section-label">💑 合婚配对</div>
     <div class="compat-input-row">
@@ -1297,15 +1565,10 @@ body::after {
     <div id="compat-result"></div>
   </section>
 
-  <!-- 结果 -->
-  <div class="results-container" id="results">
-    <div class="empty-state">
-      <div class="icon">✦</div>
-      <p>输入出生信息，点击「开始推算」<br>揭开你的命理密码</p>
-    </div>
+  
   </div>
-</div>
 
+</div>
 <footer class="footer">四柱八字 · 紫微斗数 · Cyber Destiny</footer>
 
 <script>
@@ -1369,19 +1632,43 @@ document.querySelectorAll('.neon-pills, .pills').forEach(group => {
 });
 
 // ============================================
-// 模式切换
+// 页面导航
 // ============================================
-let currentMode = 'bazi';
-function switchMode(mode) {
-  currentMode = mode;
-  document.querySelectorAll('.mode-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.mode === mode);
-  });
-  const results = document.getElementById('results');
-  if (results._lastData) {
-    renderResults(results._lastData, results._lastFd);
+function goPage(name, push) {
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('page-bazi').classList.add('hidden');
+  document.getElementById('page-ziwei').classList.add('hidden');
+  document.getElementById('page-hehun').classList.add('hidden');
+  if (name === 'landing') {
+    document.getElementById('landing').classList.remove('hidden');
+    if (push !== false) history.pushState({page:'landing'}, '', '/');
+  } else if (name === 'bazi') {
+    document.getElementById('page-bazi').classList.remove('hidden');
+    if (push !== false) history.pushState({page:'bazi'}, '', '/bazi');
+    window.scrollTo(0,0);
+  } else if (name === 'ziwei') {
+    document.getElementById('page-ziwei').classList.remove('hidden');
+    if (push !== false) history.pushState({page:'ziwei'}, '', '/ziwei');
+    window.scrollTo(0,0);
+  } else if (name === 'hehun') {
+    document.getElementById('page-hehun').classList.remove('hidden');
+    if (push !== false) history.pushState({page:'hehun'}, '', '/hehun');
+    window.scrollTo(0,0);
   }
 }
+// Handle browser back/forward
+window.addEventListener('popstate', function(e) {
+  var p = (e.state && e.state.page) || '';
+  if (p === 'bazi' || p === 'ziwei' || p === 'hehun') goPage(p, false);
+  else goPage('landing', false);
+});
+// Initial load: detect page from pathname
+(function() {
+  var path = window.location.pathname.replace(/\/$/,'');
+  if (path === '/bazi') goPage('bazi', false);
+  else if (path === '/ziwei') goPage('ziwei', false);
+  else if (path === '/hehun') goPage('hehun', false);
+})();
 
 // 时辰映射
 const SHI_CHEN_LIST = [
@@ -1467,7 +1754,7 @@ async function calculate() {
     const data = await resp.json();
     results._lastData = data;
     results._lastFd = fd;
-    renderResults(data, fd);
+    renderResults(data, fd, 'bazi');
     results.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (e) {
     results.innerHTML = `<div class="loading-state"><p style="color:var(--pink)">❌ 连接失败<br><small style="color:var(--text-dim)">请确保 python3 server.py 已启动</small></p></div>`;
@@ -1477,10 +1764,12 @@ async function calculate() {
   }
 }
 
-function renderResults(data, fd) {
-  const results = document.getElementById('results');
+function renderResults(data, fd, mode) {
+  const resultsId = mode === 'bazi' ? 'results' : 'zw-results';
+  const results = document.getElementById(resultsId);
+  if (!results) return;
   results.innerHTML = '';
-  if (currentMode === 'bazi') {
+  if (mode === 'bazi') {
     results.appendChild(buildBaziCard(data.bazi, fd));
     if (data.bazi_analysis && !data.bazi_analysis.error) {
       results.appendChild(buildBaziAnalysisCard(data.bazi_analysis, data.bazi, fd));
@@ -1501,7 +1790,7 @@ function renderResults(data, fd) {
       // 新增：空亡详解
       results.appendChild(buildXunKongCard(data.bazi_analysis));
     }
-  } else {
+  } else if (mode === 'ziwei') {
     results.appendChild(buildZiweiCard(data.ziwei));
     if (data.ziwei_analysis && !data.ziwei_analysis.error) {
       results.appendChild(buildZiweiAnalysisCard(data.ziwei_analysis));
@@ -1514,12 +1803,11 @@ function renderResults(data, fd) {
     }
   }
   // 命盘总评 + 五行雷达 + 大运时间线（八字模式下）
-  if (currentMode === 'bazi' && data.bazi_analysis && !data.bazi_analysis.error) {
+  if (mode === 'bazi' && data.bazi_analysis && !data.bazi_analysis.error) {
     results.appendChild(buildBaziEnrichCard(data.bazi_analysis, data.bazi));
   }
-  // 综合解读卡片（按当前模式只显示对应体系）
   if (data.combined_analysis && !data.combined_analysis.error) {
-    results.appendChild(buildCombinedAnalysisCard(data.combined_analysis, currentMode));
+    results.appendChild(buildCombinedAnalysisCard(data.combined_analysis, mode));
   }
   // 新增：性格分析（两种模式都显示）
   if (data.personality && !data.personality.error) {
@@ -1829,7 +2117,7 @@ function buildBaziEnrichCard(analysis, bazi) {
     const val = (wx[w] || 0) / Math.max(maxWx, 1);
     const px = cx + r * val * Math.cos(angle);
     const py = cy + r * val * Math.sin(angle);
-    radarPoints += `${i===0?'':''} ${px.toFixed(1)},${py.toFixed(1)}`;
+    radarPoints += `${i===0?"":" "}${px.toFixed(1)},${py.toFixed(1)}`;
     
     const lx = cx + (r+24) * Math.cos(angle);
     const ly = cy + (r+24) * Math.sin(angle);
@@ -1855,7 +2143,7 @@ function buildBaziEnrichCard(analysis, bazi) {
           return `<line x1="${cx}" y1="${cy}" x2="${(cx+r*Math.cos(angle)).toFixed(1)}" y2="${(cy+r*Math.sin(angle)).toFixed(1)}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`;
         }).join('')}
         <polygon points="${radarPoints}" fill="${'#FFC107'}" fill-opacity="0.15" stroke="${'#FFC107'}" stroke-width="2" stroke-opacity="0.6"/>
-        <circle cx="${radarPoints.split(' ')[0].split(',')[0]}" cy="${radarPoints.split(' ')[0].split(',')[1]}" r="4" fill="#FFC107"/>
+        <circle cx="${radarPoints.trim().split(' ')[0].split(',')[0]}" cy="${radarPoints.split(' ')[0].split(',')[1]}" r="4" fill="#FFC107"/>
         ${wxOrder.map((w, i) => {
           const angle = -Math.PI/2 + (2*Math.PI/5)*i;
           const val = (wx[w] || 0) / Math.max(maxWx, 1);
@@ -2375,6 +2663,31 @@ function exportAsImage() {
   window.print();
   document.title = title;
 }
+
+
+// ============================================
+// 紫微计算
+// ============================================
+async function calcZiwei() {
+  const dtVal = document.getElementById('zw-birthday').value;
+  if (!dtVal) return;
+  const dt = new Date(dtVal);
+  const fd = { year: dt.getFullYear(), month: dt.getMonth()+1, day: dt.getDate(), hour: dt.getHours(), gender: document.querySelector('#zw-gender-pills .neon-pill.active')?.dataset?.value||'male', lunar: 'false' };
+  const btn = document.querySelector('#page-ziwei .submit-btn');
+  btn.disabled = true; btn.textContent = '推算中...';
+  const results = document.getElementById('zw-results');
+  results.classList.remove('visible');
+  results.innerHTML = '<div class="loading-state"><div class="loading-ring"></div><p style="color:var(--text-dim);font-size:12px">正在连接紫微星盘...</p></div>';
+  try {
+    const resp = await fetch('/api/fortune', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:`year=${fd.year}&month=${fd.month}&day=${fd.day}&hour=${fd.hour}&gender=${fd.gender}&lunar=${fd.lunar}` });
+    const data = await resp.json();
+    renderResults(data, fd, 'ziwei');
+  } catch(e) { results.innerHTML = '<div class="empty-state"><div class="icon">⚠</div><p>推算失败<br><span style="color:var(--wx-red)">'+e.message+'</span></p></div>'; }
+  finally { btn.disabled = false; btn.textContent = '开 始 推 算'; }
+}
+// Ziwei shichen
+document.getElementById('zw-birthday')?.addEventListener('change', function(){const dt=new Date(this.value);const sc=getShiChen(dt.getHours());document.getElementById('zw-shichen-display').innerHTML='<span class="sc-dot"></span><span class="sc-text">'+sc.name+'时</span><span class="sc-range">'+sc.range+'</span>';});
+document.getElementById('zw-birthday')?.addEventListener('input', function(){const dt=new Date(this.value);const sc=getShiChen(dt.getHours());document.getElementById('zw-shichen-display').innerHTML='<span class="sc-dot"></span><span class="sc-text">'+sc.name+'时</span><span class="sc-range">'+sc.range+'</span>';});
 
 
 // ============================================

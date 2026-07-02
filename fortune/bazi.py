@@ -106,7 +106,7 @@ def get_wu_xing_summary(year_gan, month_gan, day_gan, hour_gan,
 
 
 class Bazi:
-    def __init__(self, year, month, day, hour, gender='male', lunar=False):
+    def __init__(self, year, month, day, hour, gender='male', lunar=False, longitude=None, minute=0):
         self.gender = gender
         if lunar:
             from .lunar import lunar_to_solar
@@ -114,7 +114,15 @@ class Bazi:
             if result:
                 year, month, day = result
         self.birth = date(year, month, day)
-        self.birth_hour = hour
+        self.birth_clock_hour = hour
+        self.birth_minute = minute
+        self.longitude = longitude
+        # 真太阳时校正
+        solar_hour = hour + minute / 60.0
+        if longitude is not None:
+            solar_hour += (longitude - 120.0) * 4.0 / 60.0
+        self.birth_hour = int(round(solar_hour)) % 24
+        self.solar_hour_raw = solar_hour
         self.lunar_date = solar_to_lunar(year, month, day)
 
         self.year_gan_zhi = compute_year_gan_zhi(year, month, day)
@@ -129,7 +137,7 @@ class Bazi:
         self.day_gan = self.day_gan_zhi[0]
         self.day_zhi = self.day_gan_zhi[1]
 
-        self.hour_gan_zhi = compute_hour_gan_zhi(self.day_gan, hour)
+        self.hour_gan_zhi = compute_hour_gan_zhi(self.day_gan, self.birth_hour)
         self.hour_gan = self.hour_gan_zhi[0]
         self.hour_zhi = self.hour_gan_zhi[1]
 

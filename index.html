@@ -200,6 +200,33 @@ body::after {
   width: 100%;
   outline: none;
 }
+.input-group select {
+  padding: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: var(--radius-sm);
+  color: var(--text-bright);
+  font-size: 15px;
+  font-family: var(--font-title);
+  transition: var(--transition);
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.input-group select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(255,193,7,0.15);
+}
+.input-group select option {
+  background: #1a1a1e;
+  color: #fff;
+}
 .input-group input:focus {
   border-color: var(--wx-gold);
   box-shadow: 0 0 14px rgba(255, 193, 7, 0.2);
@@ -1412,6 +1439,154 @@ body::after {
   .dt-item::before { left: -4px; width: 6px; height: 6px; }
 }
 
+
+/* 出生地选择 */
+.birthplace-inline { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+.birthplace-inline select {
+  font-family: inherit; background: rgba(255,255,255,0.03); color: var(--text-bright);
+  border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-sm); padding: 14px;
+  font-size: 15px; outline: none; cursor: pointer; min-width: 100px; flex: 1;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+}
+.birthplace-inline select:focus { border-color: var(--gold); box-shadow: 0 0 12px rgba(255,193,7,0.15); }
+.birthplace-inline select option { background: #1a1a1e; color: #fff; }
+.bp-coord { font-size: 11px; color: var(--wx-green); white-space: nowrap; }
+
+/* 时辰显示 */
+.shichen-display { font-size: 11px; color: var(--text-dim); margin-top: 4px; text-align: right; }
+
+/* 六爻页面 */
+.liuyao-hero { text-align: center; margin-bottom: 20px; }
+.liuyao-question { width: 100%; box-sizing: border-box; font-family: inherit; background: rgba(255,255,255,0.04); color: #fff; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-bottom: 16px; resize: vertical; min-height: 60px; }
+.liuyao-question:focus { border-color: var(--gold); outline: none; }
+.liuyao-coins-area { display: flex; flex-direction: column; align-items: center; gap: 20px; margin: 24px 0; }
+.liuyao-three-coins { display: flex; justify-content: center; gap: 24px; }
+.copper-coin-display {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #e8c97a, #c8943e 35%, #9a6d2b 65%, #6b4420 100%);
+  border: 2px solid #8b5e2b;
+  box-shadow: 0 4px 18px rgba(139,94,43,0.5), 0 0 2px rgba(0,0,0,0.3), inset 0 1px 3px rgba(255,255,255,0.2);
+  transition: all 0.4s; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+/* 外圈细线 */
+.copper-coin-display::before {
+  content: ''; position: absolute; width: 66px; height: 66px; border-radius: 50%;
+  border: 1px solid rgba(139,94,43,0.5);
+}
+/* 方孔 */
+.copper-coin-display::after {
+  content: ''; width: 20px; height: 20px;
+  background: #121214; border: 2px solid #7a5530;
+  position: absolute; z-index: 2;
+}
+.copper-coin-display.shaking {
+  animation: coin-shake 0.7s ease-out;
+}
+/* 阳面：四字布局 */
+.copper-coin-display.result-yang {
+  border-color: #c8943e; box-shadow: 0 0 24px rgba(255,193,7,0.5), 0 0 2px rgba(0,0,0,0.3), inset 0 1px 3px rgba(255,255,255,0.2);
+}
+.copper-coin-display.result-yang .coin-face-inner {
+  position: absolute; width: 80px; height: 80px; z-index: 1;
+  display: grid; grid-template-columns: 1fr 20px 1fr; grid-template-rows: 1fr 20px 1fr;
+}
+.copper-coin-display.result-yang .cf-char {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: #5c3815;
+  text-shadow: 0 1px 1px rgba(200,160,80,0.5);
+  font-family: serif;
+}
+/* 阴面：满文/双字布局 */
+.copper-coin-display.result-yin {
+  border-color: #7a6040; box-shadow: 0 0 16px rgba(0,229,255,0.3), 0 0 2px rgba(0,0,0,0.3);
+  filter: brightness(0.65) saturate(0.7);
+}
+.copper-coin-display.result-yin .coin-face-inner {
+  position: absolute; width: 80px; height: 80px; z-index: 1;
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 0 10px;
+}
+.copper-coin-display.result-yin .cf-char {
+  font-size: 16px; font-weight: 700; color: #4a3020;
+  font-family: serif; writing-mode: vertical-rl;
+  text-shadow: 0 1px 1px rgba(150,120,60,0.3);
+}
+@keyframes coin-shake {
+  0% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(180deg) scale(1.08); }
+  30% { transform: rotate(-120deg) scale(0.94); }
+  45% { transform: rotate(60deg) scale(1.04); }
+  60% { transform: rotate(-30deg) scale(0.97); }
+  75% { transform: rotate(15deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+.coin-face-label { display: none; }
+.liuyao-coin-label { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 6px; }
+.liuyao-coin-group { display: flex; flex-direction: column; align-items: center; }
+.shake-btn {
+  padding: 14px 40px; font-size: 18px; font-weight: 900;
+  background: linear-gradient(135deg, rgba(184,115,51,0.3), rgba(139,94,43,0.2));
+  border: 2px solid #b87333; border-radius: 12px;
+  color: var(--gold); cursor: pointer; letter-spacing: 4px;
+  transition: all 0.3s; font-family: var(--font-title);
+  display: flex; align-items: center; gap: 8px;
+}
+.shake-btn:hover {
+  background: linear-gradient(135deg, rgba(184,115,51,0.5), rgba(139,94,43,0.4));
+  box-shadow: 0 0 30px rgba(184,115,51,0.5), 0 0 60px rgba(255,193,7,0.15);
+  transform: scale(1.03);
+}
+.shake-btn:active { transform: scale(0.97); }
+.shake-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.shake-icon { font-size: 22px; }
+.liuyao-yao-counter { font-size: 12px; color: var(--text-dim); letter-spacing: 2px; }
+.liuyao-yao-list { display: flex; flex-direction: column; gap: 6px; max-width: 440px; margin: 0 auto; }
+.liuyao-yao-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); transition: all 0.3s; }
+.liuyao-yao-item.changing { border-color: rgba(255,193,7,0.3); background: rgba(255,193,7,0.05); }
+.liuyao-yao-icon { font-size: 22px; width: 32px; text-align: center; font-weight: bold; }
+.liuyao-yao-label { font-size: 11px; color: var(--text-dim); min-width: 36px; }
+.liuyao-yao-val { font-size: 13px; color: #fff; min-width: 60px; }
+.liuyao-yao-coins { font-size: 10px; color: var(--text-dim); display: flex; gap: 2px; }
+.liuyao-yao-coins span { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+.liuyao-yao-coins .coin-heads { background: rgba(255,193,7,0.15); color: var(--gold); }
+.liuyao-yao-coins .coin-tails { background: rgba(0,229,255,0.1); color: var(--wx-water); }
+.liuyao-result { text-align: center; padding: 20px; }
+.liuyao-gua-name { font-size: 32px; font-weight: 900; margin: 12px 0; letter-spacing: 4px; }
+.liuyao-gua-desc { color: var(--text-dim); font-size: 13px; line-height: 1.8; max-width: 500px; margin: 0 auto; }
+.liuyao-gua-judge { font-size: 15px; padding: 10px 20px; border-radius: 8px; margin: 14px 0; display: inline-block; letter-spacing: 1px; }
+.liuyao-hexagram { display: flex; flex-direction: column; align-items: center; gap: 1px; margin: 20px 0; }
+.liuyao-line { display: flex; align-items: center; gap: 12px; }
+.liuyao-line-bar { height: 6px; border-radius: 3px; transition: all 0.3s; }
+.liuyao-line-bar.yang { width: 80px; background: var(--gold); }
+.liuyao-line-bar.yin { width: 32px; background: var(--wx-water); margin: 0 24px; }
+.liuyao-line-bar.changing { animation: pulse-line 1s infinite; }
+@keyframes pulse-line { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.liuyao-line-marker { font-size: 10px; color: var(--text-dim); width: 40px; text-align: right; }
+.liuyao-bian-gua { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+.liuyao-bian-label { font-size: 11px; color: var(--text-dim); margin-bottom: 8px; letter-spacing: 2px; }
+.liuyao-gua-header { margin-bottom: 16px; }
+.liuyao-gua-comp { font-size: 12px; color: var(--text-dim); margin-top: 8px; letter-spacing: 2px; }
+.liuyao-dual-chart { display: flex; justify-content: center; align-items: flex-start; gap: 20px; margin: 20px 0; flex-wrap: wrap; }
+.liuyao-chart-col { display: flex; flex-direction: column; align-items: center; }
+.liuyao-chart-label { font-size: 10px; color: var(--text-dim); letter-spacing: 3px; margin-bottom: 8px; }
+.liuyao-chart-arrow { font-size: 24px; color: var(--gold); padding-top: 30px; }
+.liuyao-line-dot { font-size: 10px; width: 16px; text-align: center; }
+.liuyao-changing-info { font-size: 12px; color: var(--gold); margin: 12px 0; padding: 8px 16px; background: rgba(255,193,7,0.06); border: 1px solid rgba(255,193,7,0.15); border-radius: 8px; display: inline-block; letter-spacing: 1px; }
+.liuyao-question-display { margin-top: 16px; color: var(--text-dim); font-size: 12px; font-style: italic; }
+.liuyao-gua-header { margin-bottom: 16px; }
+.liuyao-gua-comp { font-size: 12px; color: var(--text-dim); margin-top: 8px; letter-spacing: 2px; }
+.liuyao-dual-chart { display: flex; justify-content: center; align-items: flex-start; gap: 20px; margin: 20px 0; flex-wrap: wrap; }
+.liuyao-chart-col { display: flex; flex-direction: column; align-items: center; }
+.liuyao-chart-label { font-size: 10px; color: var(--text-dim); letter-spacing: 3px; margin-bottom: 8px; }
+.liuyao-chart-arrow { font-size: 24px; color: var(--gold); padding-top: 30px; }
+.liuyao-line-dot { font-size: 10px; width: 16px; text-align: center; }
+.liuyao-changing-info { font-size: 12px; color: var(--gold); margin: 12px 0; padding: 8px 16px; background: rgba(255,193,7,0.06); border: 1px solid rgba(255,193,7,0.15); border-radius: 8px; display: inline-block; letter-spacing: 1px; }
+.liuyao-question-display { margin-top: 16px; color: var(--text-dim); font-size: 12px; font-style: italic; }
+
 </style>
 </head>
 <body>
@@ -1430,44 +1605,103 @@ body::after {
     </div>
     <div class="landing-cards">
       <div class="landing-card lc-bazi" onclick="goPage('bazi')">
-        <span class="lc-icon">🏛️</span>
+        <span class="lc-icon">☯️</span>
         <div class="lc-title" style="color:#FFC107">四柱八字</div>
         <div class="lc-desc">天干地支 · 十神五行<br>用神忌神 · 大运流年</div>
         <span class="lc-badge" style="color:#FFC107;border-color:#FFC10733;background:#FFC10708">命理推演</span>
       </div>
       <div class="landing-card lc-ziwei" onclick="goPage('ziwei')">
-        <span class="lc-icon">✨</span>
+        <span class="lc-icon">⭐</span>
         <div class="lc-title" style="color:#00E5FF">紫微斗数</div>
         <div class="lc-desc">星曜布阵 · 十二宫位<br>三方四正 · 四化飞星</div>
         <span class="lc-badge" style="color:#00E5FF;border-color:#00E5FF33;background:#00E5FF08">星盘解读</span>
       </div>
-      <div class="landing-card lc-hehun" onclick="goPage('hehun')">
-        <span class="lc-icon">💑</span>
-        <div class="lc-title" style="color:#FF6B9D">合婚配对</div>
-        <div class="lc-desc">八字合参 · 紫微互照<br>缘分指数 · 婚姻指南</div>
-        <span class="lc-badge" style="color:#FF6B9D;border-color:#FF6B9D33;background:#FF6B9D08">缘分分析</span>
+      <div class="landing-card lc-liuyao" onclick="goPage('liuyao')">
+        <span class="lc-icon">☰</span>
+        <div class="lc-title" style="color:#FFB000">六爻卜卦</div>
+        <div class="lc-desc">铜钱起卦 · 六十四卦<br>动爻变卦 · 吉凶断语</div>
+        <span class="lc-badge" style="color:#FFB000;border-color:#FFB00033;background:#FFB00008">占卜问事</span>
       </div>
     </div>
-    <div class="landing-footer">✦ 天干地支 · 紫微斗数 · 合婚配对 ✦</div>
+    <div class="landing-footer">✦ 天干地支 · 紫微斗数 · 六爻卜卦 ✦</div>
   </section>
 
-  <!-- ===== 八字页 ===== -->
+  
+  <!-- ===== 六爻页 ===== -->
+  <div id="page-liuyao" class="hidden">
+    <div class="back-bar"><button class="back-btn" onclick="goPage('landing')">← 返回首页</button></div>
+    <section class="glass-card input-card">
+      <div class="section-label">⏣ 六爻卜卦 · 铜钱起卦</div>
+      <div class="liuyao-hero">
+        <p style="color:var(--text-dim);font-size:13px">默念心中所问之事，点击「摇卦」按钮六次完成起卦</p>
+      </div>
+      <input class="liuyao-question" id="liuyao-question" placeholder="请输入所问之事（可选）..." maxlength="100">
+      <div id="liuyao-yao-container">
+        <div class="liuyao-yao-list" id="liuyao-yao-list"></div>
+        <div class="liuyao-coins-area" id="liuyao-coins" style="display:none">
+          <div class="liuyao-three-coins">
+            <div class="liuyao-coin-group">
+              <div class="copper-coin-display" id="coin1">
+                <div class="coin-face-inner"></div>
+              </div>
+              <span class="liuyao-coin-label">铜钱一</span>
+            </div>
+            <div class="liuyao-coin-group">
+              <div class="copper-coin-display" id="coin2">
+                <div class="coin-face-inner"></div>
+              </div>
+              <span class="liuyao-coin-label">铜钱二</span>
+            </div>
+            <div class="liuyao-coin-group">
+              <div class="copper-coin-display" id="coin3">
+                <div class="coin-face-inner"></div>
+              </div>
+              <span class="liuyao-coin-label">铜钱三</span>
+            </div>
+          </div>
+          <button class="shake-btn" id="shake-btn" onclick="tossCoin()">
+            摇 卦
+          </button>
+          <div class="liuyao-yao-counter" id="yao-counter">第 0 / 6 爻</div>
+        </div>
+        <div style="text-align:center;margin-top:12px">
+          <button class="submit-btn" id="liuyao-start-btn" onclick="startLiuYao()">开 始 起 卦</button>
+        </div>
+      </div>
+      <div id="liuyao-result" style="display:none"></div>
+    </section>
+  </div>
+
+
+<!-- ===== 八字页 ===== -->
   <div id="page-bazi" class="hidden">
     <div class="back-bar"><button class="back-btn" onclick="goPage('landing')">← 返回首页</button></div>
     <section class="glass-card input-card">
     <div class="section-label">⏣ 出生信息 · 四柱八字</div>
         <div class="input-grid">
-      <div class="input-group" style="grid-column: 1 / -1;">
-        <label>出生日期 & 时辰</label>
-        <div class="datetime-wrapper">
-          <input type="datetime-local" id="birthday" value="1990-05-20T14:00"
-                 min="1900-01-01T00:00" max="2100-12-31T23:59"
-                 step="3600">
-          <div class="shichen-display" id="shichen-display">
-            <span class="sc-dot"></span>
-            <span class="sc-text">未时</span>
-            <span class="sc-range">13:00-15:00</span>
-          </div>
+      <div class="input-group">
+        <label>出生年份</label>
+        <input type="number" id="bazi-year" style="width:100%" value="1990" min="1900" max="2100" placeholder="年份">
+      </div>
+      <div class="input-group">
+        <label>出生月份</label>
+        <select id="bazi-month"></select>
+      </div>
+      <div class="input-group">
+        <label>出生日期</label>
+        <select id="bazi-day"></select>
+      </div>
+      <div class="input-group">
+        <label>出生时间</label>
+        <select id="bazi-time"></select>
+        <div class="shichen-display" id="bazi-shichen">未时（13:00-15:00）</div>
+      </div>
+      <div class="input-group" style="grid-column:span 2">
+        <label>出生地</label>
+        <div class="birthplace-inline">
+          <select id="bazi-birthplace" onchange="onProvinceChange('bazi')"></select>
+          <select id="bazi-city" onchange="updateCoord('bazi')"></select>
+          <span class="bp-coord" id="bazi-coord"></span>
         </div>
       </div>
     </div>
@@ -1506,13 +1740,29 @@ body::after {
     <section class="glass-card input-card">
       <div class="section-label">⏣ 出生信息 · 紫微斗数</div>
       <div class="input-grid">
-        <div class="input-group" style="grid-column:1/-1">
-          <label>出生日期 & 时辰</label>
-          <div class="datetime-wrapper">
-            <input type="datetime-local" id="zw-birthday" value="1990-05-20T14:00" min="1900-01-01T00:00" max="2100-12-31T23:59" step="3600">
-            <div class="shichen-display" id="zw-shichen-display">
-              <span class="sc-dot"></span><span class="sc-text">未时</span><span class="sc-range">13:00-15:00</span>
-            </div>
+        <div class="input-group">
+          <label>出生年份</label>
+          <input type="number" id="zw-year" value="1990" min="1900" max="2100" placeholder="年份">
+        </div>
+        <div class="input-group">
+          <label>出生月份</label>
+          <select id="zw-month"></select>
+        </div>
+        <div class="input-group">
+          <label>出生日期</label>
+          <select id="zw-day"></select>
+        </div>
+        <div class="input-group">
+          <label>出生时间</label>
+          <select id="zw-time"></select>
+          <div class="shichen-display" id="zw-shichen">未时（13:00-15:00）</div>
+        </div>
+        <div class="input-group" style="grid-column:span 2">
+          <label>出生地</label>
+          <div class="birthplace-inline">
+            <select id="zw-birthplace" onchange="onProvinceChange('zw')"></select>
+            <select id="zw-city" onchange="updateCoord('zw')"></select>
+            <span class="bp-coord" id="zw-coord"></span>
           </div>
         </div>
       </div>
@@ -1634,99 +1884,227 @@ document.querySelectorAll('.neon-pills, .pills').forEach(group => {
 // ============================================
 // 页面导航
 // ============================================
+
+
+
+function updateDaySelect(prefix) {
+  var y = parseInt(document.getElementById(prefix + '-year').value) || 2000;
+  var m = parseInt(document.getElementById(prefix + '-month').value) || 1;
+  var daySel = document.getElementById(prefix + '-day');
+  if (!daySel) return;
+  var daysInMonth = new Date(y, m, 0).getDate();
+  var curVal = parseInt(daySel.value) || 1;
+  daySel.innerHTML = '';
+  for (var d = 1; d <= daysInMonth; d++) daySel.add(new Option(d + '日', d));
+  daySel.value = Math.min(curVal, daysInMonth);
+}
+
+function initBirthSelectors(prefix) {
+  var monthSel = document.getElementById(prefix + '-month');
+  if (monthSel && monthSel.options.length === 0) {
+    for (var m = 1; m <= 12; m++) monthSel.add(new Option(m + '月', m));
+    monthSel.value = '5';
+  }
+  updateDaySelect(prefix);
+  var timeSel = document.getElementById(prefix + '-time');
+  if (timeSel && timeSel.options.length === 0) {
+    for (var h = 0; h <= 23; h++) {
+      for (var mi = 0; mi < 60; mi++) {
+        timeSel.add(new Option(String(h).padStart(2,'0') + ':' + String(mi).padStart(2,'0'), h * 60 + mi));
+      }
+    }
+    timeSel.value = '840';
+  }
+  var bpSel = document.getElementById(prefix + '-birthplace');
+  if (bpSel && bpSel.options.length === 0) {
+    bpSel.add(new Option('省份', ''));
+    var provs = Object.keys(CITY_DATA);
+    for (var i = 0; i < provs.length; i++) { bpSel.add(new Option(provs[i], provs[i])); }
+  }
+  onProvinceChange(prefix);
+  if (monthSel) monthSel.onchange = function() { updateDaySelect(prefix); updateShiChenDisplay(prefix); };
+  var yearEl = document.getElementById(prefix + '-year');
+  if (yearEl) yearEl.oninput = function() { updateDaySelect(prefix); updateShiChenDisplay(prefix); };
+  var daySel = document.getElementById(prefix + '-day');
+  if (daySel) daySel.onchange = function() { updateShiChenDisplay(prefix); };
+  if (timeSel) timeSel.onchange = function() { updateShiChenDisplay(prefix); };
+  updateShiChenDisplay(prefix);
+}
+
+function onProvinceChange(prefix) {
+  var prov = document.getElementById(prefix + '-birthplace').value;
+  var citySel = document.getElementById(prefix + '-city');
+  if (citySel) {
+    citySel.innerHTML = '';
+    citySel.add(new Option('城市', ''));
+    if (prov && CITY_DATA[prov]) {
+      var cities = CITY_DATA[prov];
+      for (var i = 0; i < cities.length; i++) { citySel.add(new Option(cities[i].name, cities[i].name)); }
+    }
+  }
+  updateCoord(prefix);
+}
+
+function updateCoord(prefix) {
+  var prov = document.getElementById(prefix + '-birthplace').value || '';
+  var city = document.getElementById(prefix + '-city').value || '';
+  var coordEl = document.getElementById(prefix + '-coord');
+  if (!coordEl) return;
+  if (prov && city && CITY_DATA[prov]) {
+    var _cities = CITY_DATA[prov];
+    for (var _ci = 0; _ci < _cities.length; _ci++) {
+      if (_cities[_ci].name === city) {
+        coordEl.textContent = '经' + _cities[_ci].lng.toFixed(2) + ' | 纬' + _cities[_ci].lat.toFixed(2);
+        return;
+      }
+    }
+  }
+  coordEl.textContent = '';
+}
+
 function goPage(name, push) {
   document.getElementById('landing').classList.add('hidden');
   document.getElementById('page-bazi').classList.add('hidden');
   document.getElementById('page-ziwei').classList.add('hidden');
   document.getElementById('page-hehun').classList.add('hidden');
+  document.getElementById('page-liuyao').classList.add('hidden');
   if (name === 'landing') {
     document.getElementById('landing').classList.remove('hidden');
     if (push !== false) history.pushState({page:'landing'}, '', '/');
   } else if (name === 'bazi') {
     document.getElementById('page-bazi').classList.remove('hidden');
     if (push !== false) history.pushState({page:'bazi'}, '', '/bazi');
+    initBirthSelectors('bazi');
     window.scrollTo(0,0);
   } else if (name === 'ziwei') {
     document.getElementById('page-ziwei').classList.remove('hidden');
     if (push !== false) history.pushState({page:'ziwei'}, '', '/ziwei');
+    initBirthSelectors('zw');
     window.scrollTo(0,0);
   } else if (name === 'hehun') {
     document.getElementById('page-hehun').classList.remove('hidden');
     if (push !== false) history.pushState({page:'hehun'}, '', '/hehun');
+    window.scrollTo(0,0);
+  } else if (name === 'liuyao') {
+    document.getElementById('page-liuyao').classList.remove('hidden');
+    if (push !== false) history.pushState({page:'liuyao'}, '', '/liuyao');
     window.scrollTo(0,0);
   }
 }
 // Handle browser back/forward
 window.addEventListener('popstate', function(e) {
   var p = (e.state && e.state.page) || '';
-  if (p === 'bazi' || p === 'ziwei' || p === 'hehun') goPage(p, false);
+  if (p === 'bazi' || p === 'ziwei' || p === 'hehun' || p === 'liuyao') goPage(p, false);
   else goPage('landing', false);
 });
+
+// ===== 城市经纬度数据库（省→市） =====
+const CITY_DATA = {
+  '北京':[{name:'北京',lat:39.9042,lng:116.4074}],
+  '上海':[{name:'上海',lat:31.2304,lng:121.4737}],
+  '天津':[{name:'天津',lat:39.1252,lng:117.1907}],
+  '重庆':[{name:'重庆',lat:29.4316,lng:106.9123}],
+  '河北':[{name:'石家庄',lat:38.0428,lng:114.5149},{name:'唐山',lat:39.6305,lng:118.1802},{name:'保定',lat:38.8739,lng:115.4646},{name:'邯郸',lat:36.6256,lng:114.5392},{name:'廊坊',lat:39.0494,lng:116.6838},{name:'沧州',lat:38.3044,lng:116.8387},{name:'秦皇岛',lat:39.9356,lng:119.5996}],
+  '山西':[{name:'太原',lat:37.8706,lng:112.5509},{name:'大同',lat:40.0768,lng:113.3001},{name:'运城',lat:35.0265,lng:111.0073},{name:'临汾',lat:36.0880,lng:111.5190}],
+  '内蒙古':[{name:'呼和浩特',lat:40.8424,lng:111.7490},{name:'包头',lat:40.6582,lng:109.8404},{name:'赤峰',lat:42.2566,lng:118.8887},{name:'鄂尔多斯',lat:39.6083,lng:109.7800}],
+  '辽宁':[{name:'沈阳',lat:41.8057,lng:123.4315},{name:'大连',lat:38.9140,lng:121.6147},{name:'鞍山',lat:41.1078,lng:122.9946},{name:'锦州',lat:41.0951,lng:121.1270}],
+  '吉林':[{name:'长春',lat:43.8171,lng:125.3235},{name:'吉林',lat:43.8378,lng:126.5495},{name:'延边',lat:42.9094,lng:129.5088}],
+  '黑龙江':[{name:'哈尔滨',lat:45.8038,lng:126.5350},{name:'齐齐哈尔',lat:47.3543,lng:123.9182},{name:'大庆',lat:46.5907,lng:125.1041},{name:'牡丹江',lat:44.5516,lng:129.6324}],
+  '江苏':[{name:'南京',lat:32.0603,lng:118.7969},{name:'苏州',lat:31.2990,lng:120.5853},{name:'无锡',lat:31.4912,lng:120.3119},{name:'常州',lat:31.8101,lng:119.9741},{name:'南通',lat:31.9796,lng:120.8937},{name:'徐州',lat:34.2057,lng:117.2841},{name:'扬州',lat:32.3942,lng:119.4129}],
+  '浙江':[{name:'杭州',lat:30.2741,lng:120.1551},{name:'宁波',lat:29.8683,lng:121.5440},{name:'温州',lat:28.0029,lng:120.6986},{name:'嘉兴',lat:30.7710,lng:120.7555},{name:'绍兴',lat:30.0297,lng:120.5795},{name:'金华',lat:29.0781,lng:119.6472}],
+  '安徽':[{name:'合肥',lat:31.8206,lng:117.2272},{name:'芜湖',lat:31.3527,lng:118.4331},{name:'蚌埠',lat:32.9163,lng:117.3893},{name:'安庆',lat:30.5427,lng:117.0540},{name:'黄山',lat:29.7152,lng:118.3376}],
+  '福建':[{name:'福州',lat:26.0745,lng:119.2965},{name:'厦门',lat:24.4798,lng:118.0894},{name:'泉州',lat:24.8741,lng:118.6759},{name:'漳州',lat:24.5135,lng:117.6472}],
+  '江西':[{name:'南昌',lat:28.6820,lng:115.8582},{name:'九江',lat:29.7051,lng:116.0019},{name:'赣州',lat:25.8310,lng:114.9348},{name:'景德镇',lat:29.2687,lng:117.1786}],
+  '山东':[{name:'济南',lat:36.6512,lng:117.1201},{name:'青岛',lat:36.0671,lng:120.3826},{name:'烟台',lat:37.4620,lng:121.4481},{name:'潍坊',lat:36.7068,lng:119.1618},{name:'临沂',lat:35.1047,lng:118.3565},{name:'济宁',lat:35.4145,lng:116.5871},{name:'淄博',lat:36.8131,lng:118.0549}],
+  '河南':[{name:'郑州',lat:34.7466,lng:113.6254},{name:'洛阳',lat:34.6197,lng:112.4540},{name:'开封',lat:34.7975,lng:114.3073},{name:'南阳',lat:32.9908,lng:112.5285},{name:'商丘',lat:34.4140,lng:115.6564}],
+  '湖北':[{name:'武汉',lat:30.5928,lng:114.3055},{name:'宜昌',lat:30.6919,lng:111.2860},{name:'襄阳',lat:32.0090,lng:112.1224},{name:'荆州',lat:30.3352,lng:112.2397},{name:'黄石',lat:30.1995,lng:115.0389}],
+  '湖南':[{name:'长沙',lat:28.2282,lng:112.9388},{name:'株洲',lat:27.8277,lng:113.1340},{name:'湘潭',lat:27.8297,lng:112.9441},{name:'衡阳',lat:26.8932,lng:112.5720},{name:'岳阳',lat:29.3573,lng:113.1291},{name:'张家界',lat:29.1170,lng:110.4783}],
+  '广东':[{name:'广州',lat:23.1292,lng:113.2644},{name:'深圳',lat:22.5431,lng:114.0579},{name:'珠海',lat:22.2707,lng:113.5767},{name:'东莞',lat:23.0208,lng:113.7518},{name:'佛山',lat:23.0218,lng:113.1214},{name:'惠州',lat:23.1118,lng:114.4168},{name:'中山',lat:22.5159,lng:113.3926},{name:'汕头',lat:23.3535,lng:116.6822},{name:'湛江',lat:21.2707,lng:110.3590}],
+  '广西':[{name:'南宁',lat:22.8170,lng:108.3665},{name:'柳州',lat:24.3255,lng:109.4155},{name:'桂林',lat:25.2736,lng:110.2900},{name:'北海',lat:21.4811,lng:109.1199}],
+  '海南':[{name:'海口',lat:20.0308,lng:110.3264},{name:'三亚',lat:18.2528,lng:109.5120}],
+  '四川':[{name:'成都',lat:30.5702,lng:104.0648},{name:'绵阳',lat:31.4680,lng:104.6791},{name:'德阳',lat:31.1265,lng:104.3979},{name:'宜宾',lat:28.7512,lng:104.6417},{name:'南充',lat:30.8378,lng:106.1107},{name:'泸州',lat:28.8717,lng:105.4423}],
+  '贵州':[{name:'贵阳',lat:26.6470,lng:106.6302},{name:'遵义',lat:27.7255,lng:106.9272},{name:'毕节',lat:27.2839,lng:105.2916}],
+  '云南':[{name:'昆明',lat:25.0443,lng:102.7094},{name:'大理',lat:25.6065,lng:100.2676},{name:'丽江',lat:26.8567,lng:100.2271},{name:'曲靖',lat:25.4900,lng:103.7963}],
+  '西藏':[{name:'拉萨',lat:29.6500,lng:91.1000}],
+  '陕西':[{name:'西安',lat:34.3416,lng:108.9398},{name:'咸阳',lat:34.3293,lng:108.7093},{name:'宝鸡',lat:34.3618,lng:107.2423},{name:'延安',lat:36.5855,lng:109.4897},{name:'汉中',lat:33.0676,lng:107.0233}],
+  '甘肃':[{name:'兰州',lat:36.0611,lng:103.8343},{name:'天水',lat:34.5809,lng:105.7248},{name:'敦煌',lat:40.1413,lng:94.6620}],
+  '青海':[{name:'西宁',lat:36.6171,lng:101.7785}],
+  '宁夏':[{name:'银川',lat:38.4872,lng:106.2309}],
+  '新疆':[{name:'乌鲁木齐',lat:43.8256,lng:87.6168},{name:'喀什',lat:39.4677,lng:75.9897},{name:'伊犁',lat:43.9168,lng:81.3241}],
+  '香港':[{name:'香港',lat:22.2793,lng:114.1628}],
+  '澳门':[{name:'澳门',lat:22.1987,lng:113.5439}],
+  '台湾':[{name:'台北',lat:25.0330,lng:121.5654},{name:'高雄',lat:22.6203,lng:120.3204},{name:'台中',lat:24.1776,lng:120.6369},{name:'台南',lat:22.9999,lng:120.2065}]
+};
+
+// 时辰映射
+const SHI_CHEN_LIST = [
+  {name:'子',range:'23:00-01:00',start:23,end:1},{name:'丑',range:'01:00-03:00',start:1,end:3},
+  {name:'寅',range:'03:00-05:00',start:3,end:5},{name:'卯',range:'05:00-07:00',start:5,end:7},
+  {name:'辰',range:'07:00-09:00',start:7,end:9},{name:'巳',range:'09:00-11:00',start:9,end:11},
+  {name:'午',range:'11:00-13:00',start:11,end:13},{name:'未',range:'13:00-15:00',start:13,end:15},
+  {name:'申',range:'15:00-17:00',start:15,end:17},{name:'酉',range:'17:00-19:00',start:17,end:19},
+  {name:'戌',range:'19:00-21:00',start:19,end:21},{name:'亥',range:'21:00-23:00',start:21,end:23}
+];
+
 // Initial load: detect page from pathname
 (function() {
   var path = window.location.pathname.replace(/\/$/,'');
   if (path === '/bazi') goPage('bazi', false);
   else if (path === '/ziwei') goPage('ziwei', false);
   else if (path === '/hehun') goPage('hehun', false);
+  else if (path === '/liuyao') goPage('liuyao', false);
 })();
 
 // 时辰映射
-const SHI_CHEN_LIST = [
-  {name:'子',range:'23:00-01:00', start:23, end:1},
-  {name:'丑',range:'01:00-03:00', start:1, end:3},
-  {name:'寅',range:'03:00-05:00', start:3, end:5},
-  {name:'卯',range:'05:00-07:00', start:5, end:7},
-  {name:'辰',range:'07:00-09:00', start:7, end:9},
-  {name:'巳',range:'09:00-11:00', start:9, end:11},
-  {name:'午',range:'11:00-13:00', start:11, end:13},
-  {name:'未',range:'13:00-15:00', start:13, end:15},
-  {name:'申',range:'15:00-17:00', start:15, end:17},
-  {name:'酉',range:'17:00-19:00', start:17, end:19},
-  {name:'戌',range:'19:00-21:00', start:19, end:21},
-  {name:'亥',range:'21:00-23:00', start:21, end:23},
-];
 
 function getShiChen(hour) {
-  const h = hour % 24;
-  if (h === 23 || h === 0) return SHI_CHEN_LIST[0];
-  for (let i = 1; i < SHI_CHEN_LIST.length; i++) {
-    if (h >= SHI_CHEN_LIST[i].start && h < SHI_CHEN_LIST[i].end) return SHI_CHEN_LIST[i];
+  for (var i = 0; i < SHI_CHEN_LIST.length; i++) {
+    var sc = SHI_CHEN_LIST[i];
+    if (sc.start <= sc.end) {
+      if (hour >= sc.start && hour < sc.end) return sc;
+    } else {
+      if (hour >= sc.start || hour < sc.end) return sc;
+    }
   }
   return SHI_CHEN_LIST[0];
 }
 
-function updateShiChenDisplay() {
-  const dtVal = document.getElementById('birthday').value;
-  if (!dtVal) return;
-  const dt = new Date(dtVal);
-  const sc = getShiChen(dt.getHours());
-  document.getElementById('shichen-display').innerHTML = `
-    <span class="sc-dot"></span>
-    <span class="sc-text">${sc.name}时</span>
-    <span class="sc-range">${sc.range}</span>
-  `;
+function updateShiChenDisplay(prefix) {
+  var timeVal = parseInt(document.getElementById(prefix + '-time').value) || 720;
+  var hour = Math.floor(timeVal / 60);
+  var sc = getShiChen(hour);
+  var el = document.getElementById(prefix + '-shichen');
+  if (el) el.textContent = sc.name + '时（' + sc.range + '）';
 }
 
-// 监听日期变更
-document.getElementById('birthday').addEventListener('change', updateShiChenDisplay);
-document.getElementById('birthday').addEventListener('input', updateShiChenDisplay);
-
-function getFormData() {
-  const dtVal = document.getElementById('birthday').value;
-  let year, month, day, hour;
-  if (dtVal) {
-    const dt = new Date(dtVal);
-    year = dt.getFullYear();
-    month = dt.getMonth() + 1;
-    day = dt.getDate();
-    hour = dt.getHours();
-  } else {
-    year = month = day = hour = 0;
+function getFormData(prefix) {
+  if (!prefix) prefix = 'bazi';
+  var year = parseInt(document.getElementById(prefix + '-year').value) || 0;
+  var month = parseInt(document.getElementById(prefix + '-month').value) || 0;
+  var day = parseInt(document.getElementById(prefix + '-day').value) || 0;
+  var timeVal = parseInt(document.getElementById(prefix + '-time').value) || 720;
+  var hour = Math.floor(timeVal / 60);
+  var minute = timeVal % 60;
+  var prov = document.getElementById(prefix + '-birthplace').value || '';
+  var city = document.getElementById(prefix + '-city').value || '';
+  var longitude = 0, latitude = 0;
+  if (prov && city && CITY_DATA[prov]) {
+    var _cities = CITY_DATA[prov];
+    for (var _ci = 0; _ci < _cities.length; _ci++) {
+      if (_cities[_ci].name === city) {
+        longitude = _cities[_ci].lng;
+        latitude = _cities[_ci].lat;
+        break;
+      }
+    }
   }
+  var genderPill = prefix === 'bazi' ? '#gender-pills' : (prefix === 'zw' ? '#zw-gender-pills' : '#gender-pills');
+  var lunarPill = prefix === 'bazi' ? '#lunar-pills' : null;
   return {
-    year, month, day, hour,
-    gender: document.querySelector('#gender-pills .neon-pill.active').dataset.value,
-    lunar: document.querySelector('#lunar-pills .neon-pill.active').dataset.value,
+    year: year, month: month, day: day, hour: hour, minute: minute,
+    longitude: longitude, latitude: latitude, city: city,
+    gender: document.querySelector(genderPill + ' .neon-pill.active').dataset.value,
+    lunar: lunarPill ? document.querySelector(lunarPill + ' .neon-pill.active').dataset.value : 'false',
   };
 }
 
@@ -1749,7 +2127,7 @@ async function calculate() {
     const resp = await fetch('/api/fortune', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `year=${fd.year}&month=${fd.month}&day=${fd.day}&hour=${fd.hour}&gender=${fd.gender}&lunar=${fd.lunar}`
+      body: 'year=' + fd.year + '&month=' + fd.month + '&day=' + fd.day + '&hour=' + fd.hour + '&minute=' + fd.minute + '&gender=' + fd.gender + '&lunar=' + fd.lunar + '&longitude=' + fd.longitude + '&latitude=' + fd.latitude + '&city=' + encodeURIComponent(fd.city)
     });
     const data = await resp.json();
     results._lastData = data;
@@ -2669,80 +3047,19 @@ function exportAsImage() {
 // 紫微计算
 // ============================================
 async function calcZiwei() {
-  const dtVal = document.getElementById('zw-birthday').value;
-  if (!dtVal) return;
-  const dt = new Date(dtVal);
-  const fd = { year: dt.getFullYear(), month: dt.getMonth()+1, day: dt.getDate(), hour: dt.getHours(), gender: document.querySelector('#zw-gender-pills .neon-pill.active')?.dataset?.value||'male', lunar: 'false' };
-  const btn = document.querySelector('#page-ziwei .submit-btn');
+  var fd = getFormData('zw');
+  if (!fd.year || !fd.month || !fd.day) return;
+  var btn = document.querySelector('#page-ziwei .submit-btn');
   btn.disabled = true; btn.textContent = '推算中...';
-  const results = document.getElementById('zw-results');
+  var results = document.getElementById('zw-results');
   results.classList.remove('visible');
   results.innerHTML = '<div class="loading-state"><div class="loading-ring"></div><p style="color:var(--text-dim);font-size:12px">正在连接紫微星盘...</p></div>';
   try {
-    const resp = await fetch('/api/fortune', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:`year=${fd.year}&month=${fd.month}&day=${fd.day}&hour=${fd.hour}&gender=${fd.gender}&lunar=${fd.lunar}` });
-    const data = await resp.json();
+    var resp = await fetch('/api/fortune', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'year='+fd.year+'&month='+fd.month+'&day='+fd.day+'&hour='+fd.hour+'&minute='+fd.minute+'&gender='+fd.gender+'&lunar=false&longitude='+fd.longitude+'&latitude='+fd.latitude+'&city='+encodeURIComponent(fd.city) });
+    var data = await resp.json();
     renderResults(data, fd, 'ziwei');
-  } catch(e) { results.innerHTML = '<div class="empty-state"><div class="icon">⚠</div><p>推算失败<br><span style="color:var(--wx-red)">'+e.message+'</span></p></div>'; }
+  } catch(e) { results.innerHTML = '<div class="empty-state"><div class="icon">!</div><p>推算失败<br><span style="color:var(--pink)">'+e.message+'</span></p></div>'; }
   finally { btn.disabled = false; btn.textContent = '开 始 推 算'; }
-}
-// Ziwei shichen
-document.getElementById('zw-birthday')?.addEventListener('change', function(){const dt=new Date(this.value);const sc=getShiChen(dt.getHours());document.getElementById('zw-shichen-display').innerHTML='<span class="sc-dot"></span><span class="sc-text">'+sc.name+'时</span><span class="sc-range">'+sc.range+'</span>';});
-document.getElementById('zw-birthday')?.addEventListener('input', function(){const dt=new Date(this.value);const sc=getShiChen(dt.getHours());document.getElementById('zw-shichen-display').innerHTML='<span class="sc-dot"></span><span class="sc-text">'+sc.name+'时</span><span class="sc-range">'+sc.range+'</span>';});
-
-
-// ============================================
-// 合婚配对
-// ============================================
-async function calcCompatibility() {
-  const fd = {
-    y1: +document.getElementById('c1-year').value,
-    m1: +document.getElementById('c1-month').value,
-    d1: +document.getElementById('c1-day').value,
-    h1: +document.getElementById('c1-hour').value,
-    g1: document.getElementById('c1-gender').value,
-    y2: +document.getElementById('c2-year').value,
-    m2: +document.getElementById('c2-month').value,
-    d2: +document.getElementById('c2-day').value,
-    h2: +document.getElementById('c2-hour').value,
-    g2: document.getElementById('c2-gender').value,
-  };
-  
-  const resultDiv = document.getElementById('compat-result');
-  resultDiv.innerHTML = '<div class="loading-state"><div class="loading-ring"></div><p style="color:var(--text-dim);font-size:12px">正在分析缘分...</p></div>';
-  
-  try {
-    const resp = await fetch('/api/compatibility', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: `y1=${fd.y1}&m1=${fd.m1}&d1=${fd.d1}&h1=${fd.h1}&g1=${fd.g1}&y2=${fd.y2}&m2=${fd.m2}&d2=${fd.d2}&h2=${fd.h2}&g2=${fd.g2}`
-    });
-    const data = await resp.json();
-    
-    const color = data.score>=80?'#FF3131':data.score>=65?'#FFC107':data.score>=50?'#00E5FF':data.score>=35?'#FFB000':'#6a6a7a';
-    
-    let html = `<div class="compat-result fade-in">
-      <div class="compat-score-ring" style="border-color:${color}; box-shadow:0 0 20px ${color}44">
-        <span class="cs-num" style="color:${color}">${data.score}</span>
-        <span class="cs-level" style="color:${color}">${data.level}</span>
-      </div>
-      <div class="compat-summary">${data.summary}</div>`;
-    
-    if (data.details && data.details.length) {
-      html += `<div style="text-align:left;margin-top:12px">`;
-      for (const d of data.details) {
-        html += `<div class="compat-detail-item">
-          <span class="cd-aspect" style="color:${d.color||'#fff'}">${d.aspect}</span>
-          <span class="cd-score" style="color:${d.color||'#fff'}">${d.score}</span>
-          <span class="cd-desc">${d.desc}</span>
-        </div>`;
-      }
-      html += `</div>`;
-    }
-    html += `</div>`;
-    resultDiv.innerHTML = html;
-  } catch(e) {
-    resultDiv.innerHTML = `<p style="color:#FF3131;text-align:center">分析失败: ${e.message}</p>`;
-  }
 }
 
 
@@ -2925,6 +3242,324 @@ function buildXunKongCard(analysis) {
   
   card.innerHTML = html;
   return card;
+}
+
+
+// ============================================
+// 六爻卜卦
+// ============================================
+var LIUYAO_GUA = {
+  '111111':{name:'乾为天',desc:'刚健中正，纯阳之卦。宜积极进取，坚守正道。',judge:'大吉'},
+  '000000':{name:'坤为地',desc:'柔顺包容，纯阴之卦。宜守成待时，厚德载物。',judge:'中平'},
+  '010001':{name:'水雷屯',desc:'万物始生，艰难险阻。宜耐心筹划，不可冒进。',judge:'小凶'},
+  '100010':{name:'山水蒙',desc:'蒙昧初开，需人指引。宜虚心求教，不可固执。',judge:'中平'},
+  '010111':{name:'水天需',desc:'等待时机，戒急用忍。宜养精蓄锐，待时而动。',judge:'中平'},
+  '111010':{name:'天水讼',desc:'争讼不和，宜和为贵。退一步海阔天空。',judge:'小凶'},
+  '000010':{name:'地水师',desc:'统兵出征，需有纪律。宜严明果断，统合众人。',judge:'中平'},
+  '010000':{name:'水地比',desc:'亲附团结，和睦共处。宜亲近贤人，远离小人。',judge:'中吉'},
+  '110111':{name:'风天小畜',desc:'小有积蓄，力量不足。宜积蓄实力，不可强求。',judge:'中平'},
+  '111011':{name:'天泽履',desc:'如履薄冰，谨慎行事。宜守规矩，防患未然。',judge:'小凶'},
+  '000111':{name:'地天泰',desc:'天地交泰，万事亨通。宜顺势而为，共享成果。',judge:'大吉'},
+  '111000':{name:'天地否',desc:'天地不交，闭塞不通。宜隐忍退守，等待转机。',judge:'小凶'},
+  '111101':{name:'天火同人',desc:'志同道合，齐心协力。宜广结善缘，合作共赢。',judge:'大吉'},
+  '101111':{name:'火天大有',desc:'丰收富足，大有所成。宜慷慨分享，戒骄戒躁。',judge:'大吉'},
+  '000100':{name:'地山谦',desc:'谦逊待人，有而不居。宜低调行事，终得善果。',judge:'大吉'},
+  '001000':{name:'雷地豫',desc:'喜悦安乐，顺势而动。宜趁势而为，不可沉溺。',judge:'中吉'},
+  '011001':{name:'泽雷随',desc:'随顺时势，灵活应变。宜顺势而为，不可执拗。',judge:'中平'},
+  '100110':{name:'山风蛊',desc:'积弊已深，需力整顿。宜革除旧弊，重新出发。',judge:'小凶'},
+  '000011':{name:'地泽临',desc:'居高临下，监察四方。宜明察秋毫，恩威并施。',judge:'中吉'},
+  '110000':{name:'风地观',desc:'观察审视，静观其变。宜冷静分析，不急于行动。',judge:'中平'},
+  '101001':{name:'火雷噬嗑',desc:'咀嚼消化，克服障碍。宜攻坚克难，断然处置。',judge:'中平'},
+  '100101':{name:'山火贲',desc:'装饰文饰，外在之美。宜注重内涵，不可徒有其表。',judge:'中平'},
+  '000001':{name:'山地剥',desc:'剥落衰败，阴盛阳衰。宜隐忍退守，保存实力。',judge:'小凶'},
+  '100000':{name:'地雷复',desc:'一阳来复，否极泰来。宜抓住转机，重新出发。',judge:'中吉'},
+  '111001':{name:'天雷无妄',desc:'真实无妄，不可存侥幸。宜脚踏实地，实事求是。',judge:'中平'},
+  '100111':{name:'山天大畜',desc:'大蓄积力，厚积薄发。宜积蓄能量，等待时机。',judge:'中吉'},
+  '100001':{name:'山雷颐',desc:'颐养天年，自食其力。宜修身养性，自给自足。',judge:'中平'},
+  '011110':{name:'泽风大过',desc:'过犹不及，力不从心。宜量力而行，不可逞强。',judge:'小凶'},
+  '010010':{name:'坎为水',desc:'重重险阻，危机四伏。宜谨慎行事，步步为营。',judge:'小凶'},
+  '101101':{name:'离为火',desc:'光明依附，柔顺中正。宜依附正道，借势发光。',judge:'中吉'},
+  '011100':{name:'泽山咸',desc:'感应相通，两情相悦。宜真诚沟通，以心换心。',judge:'大吉'},
+  '001110':{name:'雷风恒',desc:'持之以恒，长久之道。宜坚守初心，不可半途而废。',judge:'中吉'},
+  '111100':{name:'天山遁',desc:'退避隐遁，明哲保身。宜急流勇退，保存实力。',judge:'小凶'},
+  '001111':{name:'雷天大壮',desc:'强盛壮大，不可一世。宜戒骄戒躁，适可而止。',judge:'中平'},
+  '101000':{name:'火地晋',desc:'旭日东升，蒸蒸日上。宜乘势而上，积极进取。',judge:'中吉'},
+  '000101':{name:'地火明夷',desc:'光明受损，韬光养晦。宜隐忍待时，暗中蓄力。',judge:'小凶'},
+  '110101':{name:'风火家人',desc:'家庭和睦，各司其职。宜以和为贵，关爱家人。',judge:'中吉'},
+  '101011':{name:'火泽睽',desc:'乖离不合，求同存异。宜包容差异，化解矛盾。',judge:'小凶'},
+  '010100':{name:'水山蹇',desc:'艰难险阻，举步维艰。宜知难而退，另寻出路。',judge:'小凶'},
+  '001010':{name:'雷水解',desc:'困难化解，雨过天晴。宜抓住机会，迅速行动。',judge:'中吉'},
+  '100011':{name:'山泽损',desc:'损下益上，有舍有得。宜适当牺牲，顾全大局。',judge:'中平'},
+  '110001':{name:'风雷益',desc:'增益有利，趁势发展。宜抓住机遇，积极进取。',judge:'大吉'},
+  '011111':{name:'泽天夬',desc:'决断果敢，当断则断。宜果断决策，不可犹豫。',judge:'中平'},
+  '111110':{name:'天风姤',desc:'不期而遇，风云际会。宜随机应变，顺势而为。',judge:'中平'},
+  '000110':{name:'地风升',desc:'循序渐进，步步高升。宜脚踏实地，稳扎稳打。',judge:'大吉'},
+  '011000':{name:'泽水困',desc:'困顿窘迫，力不从心。宜坚守信念，等待转机。',judge:'小凶'},
+  '010110':{name:'水风井',desc:'井养不穷，润泽四方。宜养人利物，惠及他人。',judge:'中平'},
+  '101110':{name:'火风鼎',desc:'鼎新革故，万象更新。宜大胆改革，破旧立新。',judge:'中吉'},
+  '001001':{name:'震为雷',desc:'震动警醒，临危不乱。宜沉着应对，化险为夷。',judge:'中平'},
+  '100100':{name:'艮为山',desc:'止于当止，不可强求。宜适可而止，知足常乐。',judge:'中平'},
+  '110100':{name:'风山渐',desc:'循序渐进，水到渠成。宜按部就班，不可急于求成。',judge:'中吉'},
+  '001011':{name:'雷泽归妹',desc:'少女归嫁，名不正则言不顺。宜正名分，循礼而行。',judge:'中平'},
+  '101100':{name:'火山旅',desc:'旅居在外，漂泊不定。宜谨慎行事，速决速行。',judge:'小凶'},
+  '011011':{name:'巽为风',desc:'柔顺谦逊，随风而动。宜灵活应变，顺势而为。',judge:'中吉'},
+  '110110':{name:'兑为泽',desc:'喜悦和乐，沟通畅达。宜以和为贵，广结善缘。',judge:'大吉'},
+  '010011':{name:'风水涣',desc:'涣散分离，需重聚人心。宜凝聚共识，统一行动。',judge:'小凶'},
+  '110010':{name:'水泽节',desc:'节制有度，适可而止。宜量入为出，把握分寸。',judge:'中平'},
+  '110011':{name:'风泽中孚',desc:'诚信感化，以心换心。宜真诚待人，以信为本。',judge:'中吉'},
+  '001100':{name:'雷山小过',desc:'小有过失，矫枉过正。宜适当调整，不可太过。',judge:'小凶'},
+  '010101':{name:'水火既济',desc:'事已成事，守成不易。宜居安思危，防微杜渐。',judge:'中吉'},
+  '101010':{name:'火水未济',desc:'事未完成，功亏一篑。宜坚持到底，不可半途而废。',judge:'小凶'},
+  '001101':{name:'雷火丰',desc:'丰盛盈满，如日中天。宜珍惜当下，居安思危，盛极必衰。',judge:'中吉'},
+  '011010':{name:'风水涣',desc:'涣散分离，需凝聚人心。宜统一意志，团结协作，化解离散之象。',judge:'小凶'},
+  '011101':{name:'风火家人',desc:'家庭和睦，各司其职。宜以和为贵，修身齐家，言有物而行有恒。',judge:'中吉'}
+};
+
+var liuyaoState = { tosses: [], coinDetails: [], question: '' };
+
+function startLiuYao() {
+  liuyaoState.tosses = [];
+  liuyaoState.coinDetails = [];
+  liuyaoState.question = document.getElementById('liuyao-question').value || '未提问';
+  document.getElementById('liuyao-yao-list').innerHTML = '';
+  document.getElementById('liuyao-coins').style.display = 'flex';
+  document.getElementById('liuyao-start-btn').style.display = 'none';
+  document.getElementById('liuyao-result').style.display = 'none';
+  // Reset coin displays
+  for (var ri = 1; ri <= 3; ri++) {
+    var cd = document.getElementById('coin' + ri);
+    if (cd) { cd.className = 'copper-coin-display'; cd.querySelector('.coin-face-inner').innerHTML = ''; }
+  }
+  document.getElementById('yao-counter').textContent = '准备摇卦…';
+}
+
+function tossCoin() {
+  var shakeBtn = document.getElementById('shake-btn');
+  if (shakeBtn) shakeBtn.disabled = true;
+  
+  // 先摇动画
+  for (var ai = 1; ai <= 3; ai++) {
+    var cd = document.getElementById('coin' + ai);
+    if (cd) { cd.classList.add('shaking'); cd.className = 'copper-coin-display shaking'; }
+  }
+  
+  setTimeout(function() {
+    // 传统三钱法：阳面=3，阴面=2
+    var coins = [];
+    var sum = 0;
+    for (var i = 0; i < 3; i++) {
+      var face = Math.random() < 0.5; // true=阳面(3), false=阴面(2)
+      coins.push(face);
+      sum += face ? 3 : 2;
+    }
+    liuyaoState.tosses.push(sum);
+    liuyaoState.coinDetails.push(coins);
+    
+    // 显示每枚铜钱的结果
+    for (var di = 1; di <= 3; di++) {
+      var cd = document.getElementById('coin' + di);
+      var face = coins[di-1];
+      if (cd) {
+        cd.className = 'copper-coin-display ' + (face ? 'result-yang' : 'result-yin');
+        var inner = cd.querySelector('.coin-face-inner');
+        if (face) {
+          // 阳面：四字环绕方孔（仿通宝）
+          inner.innerHTML = '<span class="cf-char" style="grid-column:2;grid-row:1">乾</span>' +
+            '<span class="cf-char" style="grid-column:3;grid-row:2">通</span>' +
+            '<span class="cf-char" style="grid-column:2;grid-row:3">坤</span>' +
+            '<span class="cf-char" style="grid-column:1;grid-row:2">宝</span>';
+        } else {
+          // 阴面：左右各一字（仿满文）
+          inner.innerHTML = '<span class="cf-char" style="margin-left:8px">︙</span>' +
+            '<span class="cf-char" style="margin-right:8px">︙</span>';
+        }
+      }
+    }
+    
+    var n = liuyaoState.tosses.length;
+    document.getElementById('yao-counter').textContent = '第 ' + n + ' / 6 爻';
+    
+    var yaoLabels = ['初爻','二爻','三爻','四爻','五爻','上爻'];
+    var yaoIcons = {6: '⚋', 7: '⚊', 8: '⚋', 9: '⚊'};
+    var yaoNames = {6: '老阴 ◈', 7: '少阳 ▬', 8: '少阴 ▭', 9: '老阳 ◈'};
+    var yaoColors = {6: 'var(--wx-water)', 7: 'var(--wx-fire)', 8: 'var(--wx-water)', 9: 'var(--wx-fire)'};
+    var isChanging = (sum === 6 || sum === 9);
+    
+    var coinsHtml = '';
+    for (var ci = 0; ci < coins.length; ci++) {
+      coinsHtml += '<span class="' + (coins[ci] ? 'coin-heads' : 'coin-tails') + '">' + (coins[ci] ? '阳' : '阴') + '</span>';
+    }
+    
+    var list = document.getElementById('liuyao-yao-list');
+    var item = document.createElement('div');
+    item.className = 'liuyao-yao-item' + (isChanging ? ' changing' : '');
+    item.innerHTML = '<span class="liuyao-yao-icon" style="color:' + yaoColors[sum] + '">' + yaoIcons[sum] + '</span>' +
+      '<span class="liuyao-yao-label">' + yaoLabels[n-1] + '</span>' +
+      '<span class="liuyao-yao-val" style="color:' + yaoColors[sum] + '">' + yaoNames[sum] + '</span>' +
+      '<span class="liuyao-yao-coins">' + coinsHtml + '</span>' +
+      '<span style="font-size:10px;color:var(--text-dim)">计' + sum + '</span>';
+    list.insertBefore(item, list.firstChild);
+    
+    if (n >= 6) {
+      document.getElementById('liuyao-coins').style.display = 'none';
+      setTimeout(showLiuYaoResult, 400);
+    }
+    
+    if (shakeBtn) shakeBtn.disabled = false;
+  }, 700);
+}
+
+function getGuaInfo(hexKey) {
+  // 八卦映射
+  var triMap = {'000':'坤☷','001':'震☳','010':'坎☵','011':'兑☱','100':'艮☶','101':'离☲','110':'巽☴','111':'乾☰'};
+  var upper = hexKey.substring(0,3);
+  var lower = hexKey.substring(3,6);
+  var uName = triMap[upper] || '?';
+  var lName = triMap[lower] || '?';
+  return { upper: uName, lower: lName, composition: '上' + uName + ' 下' + lName };
+}
+
+function buildHexagramBars(tosses, highlightChanging) {
+  var html = '<div class="liuyao-hexagram">';
+  var yaoNames = ['上爻','五爻','四爻','三爻','二爻','初爻'];
+  for (var vi = 5; vi >= 0; vi--) {
+    var tv = tosses[vi];
+    var isYang = (tv === 7 || tv === 9);
+    var isCh = (tv === 6 || tv === 9);
+    var barClass = 'liuyao-line-bar ' + (isYang ? 'yang' : 'yin');
+    if (highlightChanging && isCh) barClass += ' changing';
+    var marker = '';
+    if (isCh) marker = '<span class="liuyao-line-dot">●</span>';
+    else marker = '<span class="liuyao-line-dot" style="opacity:0.2">○</span>';
+    html += '<div class="liuyao-line">' + marker + '<span class="liuyao-line-marker">' + yaoNames[vi] + '</span><div class="' + barClass + '"></div></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function showLiuYaoResult() {
+  var hexKey = '';
+  var hasChanging = false;
+  var changingLines = [];
+  for (var i = 5; i >= 0; i--) {
+    var t = liuyaoState.tosses[i];
+    hexKey += (t === 7 || t === 9) ? '1' : '0';
+    if (t === 6 || t === 9) { hasChanging = true; changingLines.push(i); }
+  }
+  
+  var gua = LIUYAO_GUA[hexKey] || {name:'未知卦',desc:'卦象未收录',judge:'未知'};
+  var judgeColor = gua.judge.indexOf('吉') >= 0 ? '#00FF41' : (gua.judge.indexOf('凶') >= 0 ? '#FF3131' : '#FFC107');
+  var info = getGuaInfo(hexKey);
+  
+  var resultDiv = document.getElementById('liuyao-result');
+  resultDiv.style.display = 'block';
+  
+  var html = '<div class="liuyao-result fade-in">';
+  
+  // 卦名 + 吉凶
+  html += '<div class="liuyao-gua-header">';
+  html += '<div class="liuyao-gua-name" style="color:' + judgeColor + '">' + gua.name + '</div>';
+  html += '<div class="liuyao-gua-judge" style="background:' + judgeColor + '15;color:' + judgeColor + '">' + gua.judge + '</div>';
+  html += '<div class="liuyao-gua-comp">' + info.composition + '</div>';
+  html += '</div>';
+  
+  // 卦象图：本卦 + 变卦并排
+  html += '<div class="liuyao-dual-chart">';
+  html += '<div class="liuyao-chart-col"><div class="liuyao-chart-label">本 卦</div>';
+  html += buildHexagramBars(liuyaoState.tosses, true);
+  html += '</div>';
+  
+  if (hasChanging) {
+    var bianTosses = [];
+    for (var bj = 0; bj < 6; bj++) {
+      var bt = liuyaoState.tosses[bj];
+      if (bt === 6) bianTosses.push(7);
+      else if (bt === 9) bianTosses.push(8);
+      else bianTosses.push(bt);
+    }
+    var bianKey = '';
+    for (var bk = 5; bk >= 0; bk--) {
+      bianKey += (bianTosses[bk] === 7 || bianTosses[bk] === 9) ? '1' : '0';
+    }
+    var bianGua = LIUYAO_GUA[bianKey];
+    if (bianGua) {
+      var bColor = bianGua.judge.indexOf('吉') >= 0 ? '#00FF41' : (bianGua.judge.indexOf('凶') >= 0 ? '#FF3131' : '#FFC107');
+      var bInfo = getGuaInfo(bianKey);
+      html += '<div class="liuyao-chart-arrow">→</div>';
+      html += '<div class="liuyao-chart-col"><div class="liuyao-chart-label">变 卦</div>';
+      html += buildHexagramBars(bianTosses, false);
+      html += '<div class="liuyao-gua-name" style="color:' + bColor + ';font-size:16px;margin-top:8px">' + bianGua.name + '</div>';
+      html += '<div class="liuyao-gua-judge" style="background:' + bColor + '10;color:' + bColor + ';font-size:11px;padding:4px 12px">' + bianGua.judge + '</div>';
+      html += '<div class="liuyao-gua-comp" style="font-size:10px">' + bInfo.composition + '</div>';
+      html += '</div>';
+    }
+  }
+  html += '</div>';
+  
+  // 动爻信息
+  if (changingLines.length > 0) {
+    var yaoNames = ['初爻','二爻','三爻','四爻','五爻','上爻'];
+    var clNames = [];
+    for (var cl = 0; cl < changingLines.length; cl++) {
+      clNames.push(yaoNames[changingLines[cl]]);
+    }
+    html += '<div class="liuyao-changing-info">动爻：' + clNames.join('、') + '（共' + changingLines.length + '爻动）</div>';
+  }
+  
+  // 卦辞
+  html += '<div class="liuyao-gua-desc">' + gua.desc + '</div>';
+  
+  // 变卦详解
+  if (hasChanging && bianGua) {
+    html += '<div class="liuyao-bian-gua"><div class="liuyao-bian-label">✦ 之卦详解</div>';
+    html += '<div class="liuyao-gua-desc">' + bianGua.desc + '</div></div>';
+  }
+  
+  // 所问之事
+  if (liuyaoState.question) {
+    html += '<div class="liuyao-question-display">所问之事：' + liuyaoState.question + '</div>';
+  }
+  
+  html += '<button class="submit-btn" style="margin-top:16px" onclick="startLiuYao()">重 新 起 卦</button>';
+  html += '</div>';
+  
+  resultDiv.innerHTML = html;
+}
+
+// ============================================
+// 合婚配对
+// ============================================
+async function calcCompatibility() {
+  var fd = {
+    y1: +document.getElementById('c1-year').value,
+    m1: +document.getElementById('c1-month').value,
+    d1: +document.getElementById('c1-day').value,
+    h1: +document.getElementById('c1-hour').value,
+    g1: document.getElementById('c1-gender').value,
+    y2: +document.getElementById('c2-year').value,
+    m2: +document.getElementById('c2-month').value,
+    d2: +document.getElementById('c2-day').value,
+    h2: +document.getElementById('c2-hour').value,
+    g2: document.getElementById('c2-gender').value,
+  };
+  var resultDiv = document.getElementById('compat-result');
+  resultDiv.innerHTML = '<div class="loading-state"><div class="loading-ring"></div><p style="color:var(--text-dim);font-size:12px">正在分析缘分...</p></div>';
+  try {
+    var resp = await fetch('/api/compatibility', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'y1='+fd.y1+'&m1='+fd.m1+'&d1='+fd.d1+'&h1='+fd.h1+'&g1='+fd.g1+'&y2='+fd.y2+'&m2='+fd.m2+'&d2='+fd.d2+'&h2='+fd.h2+'&g2='+fd.g2 });
+    var data = await resp.json();
+    var color = data.score>=80?'#FF3131':data.score>=65?'#FFC107':data.score>=50?'#00E5FF':data.score>=35?'#FFB000':'#6a6a7a';
+    var html = '<div class="compat-result fade-in"><div class="compat-score-ring" style="border-color:'+color+';box-shadow:0 0 20px '+color+'44"><span class="cs-num" style="color:'+color+'">'+data.score+'</span><span class="cs-level" style="color:'+color+'">'+data.level+'</span></div><div class="compat-summary">'+data.summary+'</div>';
+    if (data.details && data.details.length) {
+      html += '<div style="text-align:left;margin-top:12px">';
+      for (var i = 0; i < data.details.length; i++) {
+        var d = data.details[i];
+        html += '<div class="compat-detail-item"><span class="cd-aspect" style="color:'+(d.color||'#fff')+'">'+d.aspect+'</span><span class="cd-score" style="color:'+(d.color||'#fff')+'">'+d.score+'</span><span class="cd-desc">'+d.desc+'</span></div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    resultDiv.innerHTML = html;
+  } catch(e) { resultDiv.innerHTML = '<p style="color:#FF3131;text-align:center">分析失败: '+e.message+'</p>'; }
 }
 
 </script>

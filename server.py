@@ -17,10 +17,13 @@ from fortune.combined_analysis import full_combined_analysis
 from fortune.personality import analyze_personality
 from fortune.compatibility import analyze_compatibility
 
-def calc_fortune(year, month, day, hour, gender, lunar):
+def calc_fortune(year, month, day, hour, gender, lunar, longitude=0, latitude=0, city='', minute=0):
     result = {}
     try:
-        b = Bazi(year, month, day, hour, gender, lunar)
+        b = Bazi(year, month, day, hour, gender, lunar, longitude, minute)
+        result["location"] = {"city": city, "longitude": longitude, "latitude": latitude}
+        if longitude:
+            result["solar_time"] = {"clock_hour": b.birth_clock_hour, "clock_minute": minute, "solar_hour": round(b.solar_hour_raw, 2), "used_hour": b.birth_hour}
         result["bazi"] = {
             "pillars": {"year": b.year_gan_zhi, "month": b.month_gan_zhi, "day": b.day_gan_zhi, "hour": b.hour_gan_zhi},
             "shi_shen": b.shi_shen, "wu_xing": b.wu_xing, "day_wx": b.day_wx,
@@ -83,7 +86,7 @@ def calc_fortune(year, month, day, hour, gender, lunar):
     try:
         if "bazi" in result and "ziwei" in result and \
            "error" not in result.get("bazi", {}) and "error" not in result.get("ziwei", {}):
-            b = Bazi(year, month, day, hour, gender, lunar)
+            b = Bazi(year, month, day, hour, gender, lunar, longitude, minute)
             z = Ziwei(year, month, day, hour, gender, lunar)
             ba = result.get("bazi_analysis", {})
             za = result.get("ziwei_analysis", {})
@@ -97,7 +100,7 @@ def calc_fortune(year, month, day, hour, gender, lunar):
             ba = result.get("bazi_analysis", {})
             za = result.get("ziwei_analysis", {})
             if "error" not in ba and "error" not in za:
-                b = Bazi(year, month, day, hour, gender, lunar)
+                b = Bazi(year, month, day, hour, gender, lunar, longitude, minute)
                 result["personality"] = analyze_personality(b, ba, za)
     except Exception:
         result["personality"] = {"error": "personality analysis failed"}
@@ -107,7 +110,7 @@ def calc_fortune(year, month, day, hour, gender, lunar):
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         # Serve index.html for all page routes
-        page_routes = {"/", "/index.html", "/bazi", "/ziwei", "/hehun"}
+        page_routes = {"/", "/index.html", "/bazi", "/ziwei", "/hehun", "/liuyao"}
         if self.path in page_routes or self.path.startswith("/bazi") or self.path.startswith("/ziwei") or self.path.startswith("/hehun"):
             try:
                 with open(os.path.join(BASE, "index.html"), "rb") as f:
@@ -154,9 +157,13 @@ class Handler(BaseHTTPRequestHandler):
                 month = int(params.get("month", [0])[0])
                 day = int(params.get("day", [0])[0])
                 hour = int(params.get("hour", [12])[0])
+                minute = int(params.get("minute", [0])[0])
                 gender = params.get("gender", ["male"])[0]
                 lunar = params.get("lunar", ["false"])[0] == "true"
-                result = calc_fortune(year, month, day, hour, gender, lunar)
+                longitude = float(params.get("longitude", [0])[0])
+                latitude = float(params.get("latitude", [0])[0])
+                city = params.get("city", [""])[0]
+                result = calc_fortune(year, month, day, hour, gender, lunar, longitude, latitude, city, minute)
                 resp = json.dumps(result, ensure_ascii=False).encode("utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
